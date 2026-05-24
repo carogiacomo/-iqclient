@@ -1,2 +1,1 @@
-# -iqclient
-IQCLIENT
+index.html
