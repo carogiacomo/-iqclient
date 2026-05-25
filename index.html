@@ -1,0 +1,919 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IQ Client — Itaú BBA AI Challenge 2026</title>
+<script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body, #root { height: 100%; width: 100%; overflow: hidden; }
+  body { background: #0E0C08; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #F5ECD7; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: #0E0C08; }
+  ::-webkit-scrollbar-thumb { background: #3A2E1A; border-radius: 4px; }
+  input, textarea { font-family: inherit; }
+  input::placeholder, textarea::placeholder { color: #5A4A2A; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+  button { font-family: inherit; cursor: pointer; }
+  .protected { -webkit-user-select:none; -moz-user-select:none; user-select:none; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey && ['u','s','a','c'].includes(e.key.toLowerCase())) ||
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && ['i','j','c'].includes(e.key.toLowerCase()))) {
+      e.preventDefault();
+    }
+  });
+</script>
+<script type="text/babel">
+const { useState } = React;
+
+const TOKENS = {
+  "IQ2026-CARO":    "Caroline Garcia Souza",
+  "IQ2026-LIVIA":   "Lívia Campos Peralis",
+  "IQ2026-ROBERTO": "Roberto Buchweitz Avila",
+  "IQ2026-LENNYN":  "Lennyn Semeghini",
+  "IQ2026-BANCA":   "Banca Avaliadora",
+};
+const SENHA_MESTRA = "IQClient@BBA2026";
+const ACESSO_LIVRE = true; // Liberado para todos testarem
+
+const G = {
+  bg:"#0E0C08", card:"rgba(255,255,255,0.03)",
+  border:"rgba(200,169,110,0.25)", gold:"#C8A96E",
+  goldLight:"#E8C87A", white:"#F5ECD7",
+  muted:"#A89878", dim:"#7A6A4A",
+};
+
+const sections = [
+  {id:"overview", label:"Visão Geral", icon:"◈"},
+  {id:"problem",  label:"Problema",    icon:"⊗"},
+  {id:"solution", label:"Solução",     icon:"⊕"},
+  {id:"prototype",label:"Protótipo",   icon:"◎"},
+  {id:"importacao",label:"Importar Base",icon:"⊞"},
+  {id:"team",     label:"Time",        icon:"◉"},
+  {id:"impact",   label:"Impacto",     icon:"◆"},
+];
+
+const teamMembers = [
+  {name:"Caroline Garcia Souza", role:"Líder do Projeto"},
+  {name:"Lívia Campos Peralis", role:"Negócios & IA"},
+  {name:"Roberto Buchweitz Avila", role:"Negócios & IA"},
+  {name:"Lennyn Semeghini", role:"Negócios & IA"},
+  {name:"Rodrigo Augusto Pereira Zago", role:"Mentor", mentor:true},
+];
+
+const impacts = [
+  {metric:"70%", label:"Redução no tempo de prep pré-visita"},
+  {metric:"3x",  label:"Mais visitas de prospecção por mês/banker"},
+  {metric:"100%",label:"Segmentos do Banco atendidos"},
+  {metric:"R$0", label:"Custo adicional de licença — usa M365 existente"},
+];
+
+const demoData = {
+  "12.345.678/0001-99": {
+    empresa:"Agrícola Pioneira S.A.", setor:"Soja & Milho — Paraná",
+    faturamento:"R$ 480M (2024)", patrimonio:"R$ 320M",
+    endividamento:"28% do PL", ratingInterno:"AA",
+    status:"Cliente Ativo — Carteira Agro Londrina",
+    noticia:"Empresa expandiu área plantada em 18% na safra 24/25 e estuda financiamento para nova silo.",
+    scoreOportunidade:{
+      total:87, classificacao:"🔥 Cliente Quente",
+      fatores:[
+        {label:"Saúde Financeira",valor:95},
+        {label:"Momento da Empresa",valor:90},
+        {label:"Espaço para Novo Crédito",valor:80},
+        {label:"Relacionamento BBA",valor:85},
+        {label:"Timing de Mercado",valor:85},
+      ]
+    },
+    timingAcao:{
+      nivel:"AGORA", cor:"#16a34a",
+      mensagem:"Safra 24/25 encerrada com resultado recorde. Caixa positivo e empresa avaliando expansão de infraestrutura. Janela ideal para proposta de CPR ampliada.",
+      acaoSugerida:"Agendar visita presencial na fazenda nos próximos 15 dias.",
+      gatilho:"Expansão de 18% na área plantada + CRA com vencimento em 12/2027 abrindo espaço para nova operação.",
+    },
+    executivos:[
+      {cargo:"CEO / Sócio-fundador", nome:"João Carlos Mendonça", fonte:"Valor Econômico"},
+      {cargo:"CFO", nome:"Renata Souza Pires", fonte:"LinkedIn público"},
+      {cargo:"Dir. Operações Agro", nome:"Marcos Teixeira Filho", fonte:"Anuário Agronegócio PR"},
+    ],
+    perfil:{
+      tomadorDecisao:"CFO Renata Pires + Sócio-fundador João Mendonça",
+      estiloComunicacao:"Objetivo, prefere dados e planilhas. Reuniões curtas e presenciais.",
+      relacionamentoBBA:"6 anos de carteira. Alto engajamento.",
+      momentoEmpresa:"Expansão — safra recorde, avaliando financiamento de infraestrutura.",
+    },
+    habitos:{
+      produtosUsados:["CPR Financeira","Conta Corrente PJ","Câmbio Spot"],
+      frequenciaContato:"Mensal — visita trimestral presencial",
+      canalPreferido:"WhatsApp + reunião presencial na fazenda",
+      sensibilidade:"Preço de câmbio e prazo de carência",
+      comportamento:"Compara taxas com BB e Bradesco antes de fechar.",
+    },
+    exposicaoMercado:{
+      totalSCR:"R$ 134M", espacoEstimado:"~R$ 60–80M disponível para novo crédito",
+      scoreBureau:"980/1000 — Risco Baixíssimo", restricoes:"Nenhuma restrição ativa",
+      instituicoes:[
+        {banco:"Banco do Brasil", tipo:"Crédito Rural / CPR", volume:"R$ 80M", prazo:"Longo prazo"},
+        {banco:"Bradesco", tipo:"Capital de Giro", volume:"R$ 32M", prazo:"12 meses"},
+        {banco:"Itaú BBA", tipo:"CPR Financeira + Câmbio", volume:"R$ 22M", prazo:"Safra"},
+      ],
+      titulosPublicos:["CPR registrada B3 — R$ 45M (venc. 03/2026)","CRA Embrapa Agro — R$ 20M (venc. 12/2027)"],
+    },
+    gatilhos:[
+      {icone:"🌾", tipo:"Safra Recorde", urgencia:"Alta", descricao:"Safra 24/25 encerrada com expansão de 18% na área plantada — caixa positivo e momento de reinvestimento."},
+      {icone:"🏗️", tipo:"Expansão de Infraestrutura", urgencia:"Alta", descricao:"Empresa avaliando construção de novo silo — demanda por financiamento de longo prazo."},
+      {icone:"📅", tipo:"Vencimento de CRA", urgencia:"Média", descricao:"CRA Embrapa Agro vence em 12/2027 — janela para proposta de nova operação antes do vencimento."},
+    ],
+    comparativoSetorial:{
+      setor:"Grandes Produtores de Grãos — Paraná",
+      posicao:"Top 15% do setor",
+      dados:[
+        {indicador:"Faturamento",  empresa:"R$ 480M",   media:"R$ 310M",    status:"acima"},
+        {indicador:"Endividamento",empresa:"28% do PL", media:"41% do PL",  status:"acima"},
+        {indicador:"Crescimento Área",empresa:"+18%",   media:"+7%",        status:"acima"},
+        {indicador:"Produtos BBA", empresa:"3 produtos",media:"4.2 produtos",status:"abaixo"},
+      ],
+      insight:"Cliente com saúde financeira acima da média do setor e baixo endividamento relativo. Oportunidade de aumentar share of wallet — média do setor usa 4.2 produtos BBA, cliente usa apenas 3.",
+    },
+    oportunidades:["CPR Financeira — ampliação de limite","Seguro Agrícola","Câmbio Exportação — NDF"],
+    pauta:["Renovação da linha de crédito","Proposta de hedge cambial","Cross-sell: seguro de produção"],
+    risco:"Baixo",
+  },
+  "98.765.432/0001-11": {
+    empresa:"TechGrain Agro Ltda.", setor:"Insumos & Tecnologia Agrícola",
+    faturamento:"R$ 210M (2024)", patrimonio:"R$ 180M",
+    endividamento:"15% do PL", ratingInterno:"A+",
+    status:"Prospect — Nunca foi abordado",
+    noticia:"Recebeu aporte de R$ 50M em rodada Series B em março/2026. Busca banco para estruturar conta corrente corporativa.",
+    scoreOportunidade:{
+      total:94, classificacao:"🚀 Prospect Prioritário",
+      fatores:[
+        {label:"Saúde Financeira",valor:90},
+        {label:"Momento da Empresa",valor:99},
+        {label:"Espaço para Novo Crédito",valor:98},
+        {label:"Relacionamento BBA",valor:70},
+        {label:"Timing de Mercado",valor:95},
+      ]
+    },
+    timingAcao:{
+      nivel:"URGENTE", cor:"#dc2626",
+      mensagem:"Empresa recebeu aporte de R$ 50M em março/2026 e está estruturando banking corporativo. Subbancarizada em fintechs. BTG e XP já estão no radar.",
+      acaoSugerida:"Contato via LinkedIn com CEO Felipe Aragão esta semana. Janela aberta agora.",
+      gatilho:"Aporte Series B em 03/2026 + ausência de banco de atacado na carteira = oportunidade única.",
+    },
+    executivos:[
+      {cargo:"CEO & Co-fundador", nome:"Felipe Aragão", fonte:"Crunchbase"},
+      {cargo:"CFO", nome:"Isabela Drummond", fonte:"LinkedIn público"},
+      {cargo:"CTO", nome:"Lucas Viana", fonte:"LinkedIn público"},
+    ],
+    perfil:{
+      tomadorDecisao:"CEO Felipe Aragão + CFO Isabela Drummond",
+      estiloComunicacao:"Digital-first. Valoriza inovação e velocidade. Reuniões por vídeo ou presencial em SP.",
+      relacionamentoBBA:"Sem histórico. Prospect via radar de aportes Series B.",
+      momentoEmpresa:"Alto crescimento pós-aporte. Necessita estruturar banking corporativo.",
+    },
+    habitos:{
+      produtosUsados:["Conta PJ Fintech","Cartão Corporativo","PIX em massa"],
+      frequenciaContato:"Nenhuma — primeiro contato",
+      canalPreferido:"LinkedIn + e-mail executivo + reunião em SP",
+      sensibilidade:"Experiência digital, integração via API, agilidade no onboarding",
+      comportamento:"Perfil tech — compara com BTG e XP.",
+    },
+    exposicaoMercado:{
+      totalSCR:"R$ 31M", espacoEstimado:"~R$ 80–120M disponível — empresa subbancarizada para seu porte",
+      scoreBureau:"860/1000 — Risco Baixo", restricoes:"Nenhuma restrição ativa",
+      instituicoes:[
+        {banco:"Nubank PJ", tipo:"Conta Corrente + Cartão", volume:"R$ 8M", prazo:"Rotativo"},
+        {banco:"BTG Pactual", tipo:"Capital de Giro", volume:"R$ 15M", prazo:"18 meses"},
+        {banco:"Santander", tipo:"FX / Importação", volume:"R$ 8M", prazo:"Spot"},
+      ],
+      titulosPublicos:["Debênture privada Series B — R$ 50M (aporte 03/2026)"],
+    },
+    gatilhos:[
+      {icone:"💰", tipo:"Aporte Series B", urgencia:"Alta", descricao:"Recebeu R$ 50M em março/2026 — empresa em fase de estruturação bancária corporativa."},
+      {icone:"🏦", tipo:"Subbancarizada", urgencia:"Alta", descricao:"Opera com fintechs sem banco de atacado estruturado — gap claro para o BBA entrar."},
+      {icone:"👔", tipo:"Expansão do Time Financeiro", urgencia:"Alta", descricao:"Empresa contratando CFO sênior — revisão total da estrutura bancária em andamento."},
+    ],
+    comparativoSetorial:{
+      setor:"Agrotechs & Fintechs Agro — Brasil",
+      posicao:"Top 20% do setor",
+      dados:[
+        {indicador:"Faturamento",   empresa:"R$ 210M",   media:"R$ 145M",     status:"acima"},
+        {indicador:"Endividamento", empresa:"15% do PL", media:"28% do PL",   status:"acima"},
+        {indicador:"Crescimento",   empresa:"+35% a.a.", media:"+18% a.a.",   status:"acima"},
+        {indicador:"Produtos BBA",  empresa:"0 produtos",media:"2.8 produtos",status:"abaixo"},
+      ],
+      insight:"Empresa com crescimento acima da média do setor e endividamento saudável. Completamente sem relacionamento BBA — maior oportunidade de entrada do portfólio. Empresas similares usam em média 2.8 produtos BBA.",
+    },
+    oportunidades:["Conta PJ Atacado + Cash Management","FGI / Antecipação de Recebíveis","FX para importação de insumos"],
+    pauta:["Apresentar plataforma BBA","Entender necessidades pós-aporte","Propor estrutura de cash management"],
+    risco:"Médio",
+  },
+};
+
+const riskColor = r => r==="Baixo"?"#4ade80":r==="Médio"?"#fbbf24":"#f87171";
+const scoreColor = s => s>=80?G.gold:s>=60?"#fbbf24":G.muted;
+
+// ── LOGIN ──────────────────────────────────────────────────────────────────
+function LoginScreen({onLogin}) {
+  const [input,setInput]=useState("");
+  const [error,setError]=useState("");
+  const [loading,setLoading]=useState(false);
+
+  React.useEffect(()=>{
+    if(ACESSO_LIVRE){ onLogin("Visitante","GUEST"); return; }
+    const p=new URLSearchParams(window.location.search);
+    const t=p.get("token");
+    if(t&&TOKENS[t]) onLogin(TOKENS[t],t);
+  },[]);
+
+  const handle=()=>{
+    setError(""); setLoading(true);
+    setTimeout(()=>{
+      if(ACESSO_LIVRE){ onLogin("Visitante","GUEST"); return; }
+      const v=input.trim().toUpperCase();
+      if(TOKENS[v]) onLogin(TOKENS[v],v);
+      else if(input.trim()===SENHA_MESTRA) onLogin("Usuário Autorizado","MASTER");
+      else{setError("Acesso negado. Verifique sua senha ou token.");setLoading(false);}
+    },1000);
+  };
+
+  return (
+    <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",background:G.bg}}>
+      <div style={{width:"100%",maxWidth:420,padding:48,background:"rgba(255,255,255,0.02)",border:`1px solid ${G.border}`,borderRadius:20,textAlign:"center"}}>
+        <div style={{width:60,height:60,background:`linear-gradient(135deg,${G.gold},${G.goldLight})`,borderRadius:16,display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,margin:"0 auto 24px"}}>◈</div>
+        <h1 style={{fontFamily:"Georgia,serif",color:G.white,fontSize:28,fontWeight:400,margin:"0 0 8px"}}>IQ Client</h1>
+        <p style={{color:G.muted,fontSize:13,margin:"0 0 36px",letterSpacing:1}}>ITAÚ BBA — AI CHALLENGE 2026</p>
+        <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handle()}
+          placeholder="Digite sua senha ou token de acesso" type="password"
+          style={{width:"100%",background:"rgba(0,0,0,0.4)",border:`1px solid ${G.border}`,borderRadius:10,padding:"14px 18px",color:G.white,fontSize:14,outline:"none",marginBottom:12,textAlign:"center",letterSpacing:2}}/>
+        {error&&<p style={{color:"#f87171",fontSize:12,margin:"0 0 12px"}}>🔒 {error}</p>}
+        <button onClick={handle} disabled={loading}
+          style={{width:"100%",background:`linear-gradient(135deg,${G.gold},${G.goldLight})`,border:"none",borderRadius:10,padding:"14px",color:"#1A1208",fontWeight:700,fontSize:14,letterSpacing:1,opacity:loading?0.7:1}}>
+          {loading?"VERIFICANDO...":"ACESSAR"}
+        </button>
+        <p style={{color:"#3A2E1A",fontSize:11,marginTop:24,lineHeight:1.6}}>Acesso restrito a membros autorizados.<br/>© IQ Client — CB Itaú BBA 2026</p>
+      </div>
+    </div>
+  );
+}
+
+// ── WATERMARK ─────────────────────────────────────────────────────────────
+function Watermark({user,token}) {
+  const txt=`IQ CLIENT · CONFIDENCIAL · ${user.toUpperCase()} · ${token} · ITAÚ BBA 2026`;
+  return (
+    <div style={{position:"fixed",top:0,left:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:9999,overflow:"hidden"}}>
+      {[...Array(8)].map((_,i)=>(
+        <div key={i} style={{position:"absolute",top:`${i*14}%`,left:"-10%",width:"120%",whiteSpace:"nowrap",fontSize:11,fontWeight:600,letterSpacing:4,color:"rgba(200,169,110,0.055)",transform:"rotate(-25deg)",transformOrigin:"left center"}}>
+          {txt} &nbsp;&nbsp;&nbsp; {txt} &nbsp;&nbsp;&nbsp; {txt}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── BRIEFING ───────────────────────────────────────────────────────────────
+function Briefing({result}) {
+  return (
+    <div style={{background:G.bg,borderRadius:16,border:`1px solid ${G.border}`,overflow:"hidden"}}>
+
+      {/* Header */}
+      <div style={{background:"linear-gradient(135deg,#1A1208,#2E2210)",padding:"24px 28px",borderBottom:`2px solid ${G.gold}`}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:12}}>
+          <div>
+            <p style={{color:G.gold,fontSize:10,letterSpacing:3,margin:"0 0 6px"}}>◈ DOSSIÊ IQ CLIENT</p>
+            <h3 style={{color:G.white,fontSize:22,margin:0,fontFamily:"Georgia,serif"}}>{result.empresa}</h3>
+            <p style={{color:G.muted,fontSize:13,margin:"4px 0 0"}}>{result.setor}</p>
+          </div>
+          <span style={{background:riskColor(result.risco)+"22",border:`1px solid ${riskColor(result.risco)}`,color:riskColor(result.risco),padding:"6px 16px",borderRadius:20,fontSize:11,fontWeight:700}}>RISCO {result.risco.toUpperCase()}</span>
+        </div>
+        <div style={{display:"flex",gap:28,marginTop:16,flexWrap:"wrap"}}>
+          {[{l:"FATURAMENTO",v:result.faturamento},{l:"PATRIMÔNIO",v:result.patrimonio},{l:"ENDIVIDAMENTO",v:result.endividamento},{l:"RATING BBA",v:result.ratingInterno}].map((x,i)=>(
+            <div key={i}><p style={{color:G.dim,fontSize:9,letterSpacing:1,margin:0}}>{x.l}</p><p style={{color:G.goldLight,fontSize:14,margin:"2px 0 0",fontWeight:700}}>{x.v}</p></div>
+          ))}
+          <div><p style={{color:G.dim,fontSize:9,letterSpacing:1,margin:0}}>STATUS BBA</p><p style={{color:G.white,fontSize:13,margin:"2px 0 0"}}>{result.status}</p></div>
+        </div>
+      </div>
+
+      <div style={{padding:"28px",display:"grid",gap:16}}>
+
+        {/* Score + Timing */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+          <div style={{background:G.card,border:`1px solid ${G.border}`,borderRadius:14,padding:24}}>
+            <p style={{color:G.gold,fontSize:12,letterSpacing:2,fontWeight:700,margin:"0 0 14px"}}>⭐ SCORE DE OPORTUNIDADE</p>
+            <div style={{display:"flex",alignItems:"center",gap:20}}>
+              <div style={{position:"relative",width:90,height:90,flexShrink:0}}>
+                <svg width="90" height="90" viewBox="0 0 90 90">
+                  <circle cx="45" cy="45" r="38" fill="none" stroke="rgba(200,169,110,0.15)" strokeWidth="9"/>
+                  <circle cx="45" cy="45" r="38" fill="none" stroke={G.gold} strokeWidth="9"
+                    strokeDasharray={`${result.scoreOportunidade.total*2.388} 238.8`}
+                    strokeLinecap="round" transform="rotate(-90 45 45)"/>
+                </svg>
+                <div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center"}}>
+                  <p style={{color:G.goldLight,fontSize:26,fontWeight:900,margin:0,lineHeight:1}}>{result.scoreOportunidade.total}</p>
+                  <p style={{color:G.dim,fontSize:10,margin:0}}>/100</p>
+                </div>
+              </div>
+              <div style={{flex:1}}>
+                <p style={{color:G.goldLight,fontSize:15,fontWeight:700,margin:"0 0 10px"}}>{result.scoreOportunidade.classificacao}</p>
+                {result.scoreOportunidade.fatores.map((f,i)=>(
+                  <div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+                    <span style={{color:G.muted,fontSize:11,minWidth:140}}>{f.label}</span>
+                    <div style={{flex:1,background:"rgba(200,169,110,0.1)",borderRadius:4,height:6}}>
+                      <div style={{width:`${f.valor}%`,height:6,background:`linear-gradient(90deg,${G.gold},${G.goldLight})`,borderRadius:4}}/>
+                    </div>
+                    <span style={{color:G.gold,fontSize:11,fontWeight:700,minWidth:24,textAlign:"right"}}>{f.valor}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div style={{background:G.card,border:`1px solid ${result.timingAcao.cor}55`,borderRadius:14,padding:24}}>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
+              <span style={{background:result.timingAcao.cor,color:"#fff",fontSize:11,fontWeight:900,padding:"4px 14px",borderRadius:20,letterSpacing:2}}>⏰ {result.timingAcao.nivel}</span>
+              <p style={{color:G.gold,fontSize:12,letterSpacing:2,fontWeight:700,margin:0}}>TIMING DE AÇÃO</p>
+            </div>
+            <p style={{color:G.white,fontSize:14,lineHeight:1.7,margin:"0 0 12px"}}>{result.timingAcao.mensagem}</p>
+            <div style={{background:"rgba(200,169,110,0.06)",border:`1px solid ${G.border}`,borderRadius:10,padding:"10px 14px",marginBottom:10}}>
+              <p style={{color:G.gold,fontSize:11,fontWeight:700,letterSpacing:1,margin:"0 0 4px"}}>🎯 GATILHO</p>
+              <p style={{color:G.muted,fontSize:13,margin:0,lineHeight:1.6}}>{result.timingAcao.gatilho}</p>
+            </div>
+            <div style={{background:`linear-gradient(135deg,${G.gold},${G.goldLight})`,borderRadius:10,padding:"10px 14px"}}>
+              <p style={{color:"#1A1208",fontSize:13,fontWeight:700,margin:0}}>👉 {result.timingAcao.acaoSugerida}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Gatilhos Automáticos */}
+        <div style={{background:G.card,border:`1px solid ${G.border}`,borderLeft:"4px solid #f59e0b",borderRadius:14,padding:24}}>
+          <p style={{color:"#f59e0b",fontSize:12,letterSpacing:2,fontWeight:700,margin:"0 0 16px"}}>🎯 GATILHOS AUTOMÁTICOS DE PROSPECÇÃO</p>
+          <div style={{display:"grid",gap:10}}>
+            {result.gatilhos.map((g,i)=>(
+              <div key={i} style={{display:"flex",alignItems:"flex-start",gap:16,background:"rgba(0,0,0,0.3)",borderRadius:10,padding:"14px 18px",border:`1px solid ${G.border}`}}>
+                <span style={{fontSize:22,flexShrink:0}}>{g.icone}</span>
+                <div style={{flex:1}}>
+                  <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6,flexWrap:"wrap"}}>
+                    <p style={{color:G.white,fontSize:14,fontWeight:700,margin:0}}>{g.tipo}</p>
+                    <span style={{background:g.urgencia==="Alta"?"rgba(239,68,68,0.15)":"rgba(251,191,36,0.15)",border:`1px solid ${g.urgencia==="Alta"?"#ef4444":"#fbbf24"}`,color:g.urgencia==="Alta"?"#ef4444":"#fbbf24",fontSize:10,padding:"2px 10px",borderRadius:10,fontWeight:700}}>
+                      {g.urgencia==="Alta"?"🔴 URGÊNCIA ALTA":"🟡 URGÊNCIA MÉDIA"}
+                    </span>
+                  </div>
+                  <p style={{color:G.muted,fontSize:13,margin:0,lineHeight:1.6}}>{g.descricao}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Radar */}
+        <div style={{background:G.card,border:`1px solid ${G.border}`,borderLeft:`4px solid ${G.gold}`,borderRadius:14,padding:24}}>
+          <p style={{color:G.gold,fontSize:12,letterSpacing:2,fontWeight:700,margin:"0 0 10px"}}>📰 RADAR DO SETOR</p>
+          <p style={{color:G.white,fontSize:15,margin:0,lineHeight:1.8}}>{result.noticia}</p>
+        </div>
+
+        {/* Executivos */}
+        <div style={{background:G.card,border:`1px solid ${G.border}`,borderLeft:`4px solid ${G.goldLight}`,borderRadius:14,padding:24}}>
+          <p style={{color:G.gold,fontSize:12,letterSpacing:2,fontWeight:700,margin:"0 0 14px"}}>👤 EXECUTIVOS-CHAVE</p>
+          <div style={{display:"grid",gap:10}}>
+            {result.executivos.map((e,i)=>(
+              <div key={i} style={{display:"flex",alignItems:"center",gap:16,background:"rgba(0,0,0,0.3)",borderRadius:10,padding:"14px 18px",border:`1px solid ${G.border}`}}>
+                <div style={{width:44,height:44,borderRadius:"50%",background:`linear-gradient(135deg,${G.gold},${G.goldLight})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#1A1208",fontWeight:700,fontSize:14,flexShrink:0}}>
+                  {e.nome.split(" ").slice(0,2).map(w=>w[0]).join("")}
+                </div>
+                <div style={{flex:1}}>
+                  <p style={{color:G.white,fontSize:15,fontWeight:700,margin:0}}>{e.nome}</p>
+                  <p style={{color:G.muted,fontSize:13,margin:"4px 0 0"}}>{e.cargo}</p>
+                </div>
+                <span style={{background:"rgba(200,169,110,0.08)",border:`1px solid ${G.border}`,color:G.gold,fontSize:11,padding:"4px 12px",borderRadius:10}}>{e.fonte}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Exposição */}
+        <div style={{background:G.card,border:`1px solid ${G.border}`,borderLeft:`4px solid ${G.gold}`,borderRadius:14,padding:24}}>
+          <p style={{color:G.gold,fontSize:12,letterSpacing:2,fontWeight:700,margin:"0 0 14px"}}>🏦 EXPOSIÇÃO NO MERCADO (SCR + CVM + BUREAUS)</p>
+          <div style={{background:"rgba(200,169,110,0.08)",border:`1px solid ${G.border}`,borderRadius:10,padding:"14px 18px",marginBottom:14}}>
+            <p style={{color:G.gold,fontSize:11,letterSpacing:1,fontWeight:700,margin:"0 0 4px"}}>💡 ESPAÇO ESTIMADO PARA NOVO CRÉDITO BBA</p>
+            <p style={{color:G.goldLight,fontSize:20,fontWeight:700,margin:0}}>{result.exposicaoMercado.espacoEstimado}</p>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:14}}>
+            {[{l:"TOTAL SCR",v:result.exposicaoMercado.totalSCR},{l:"SCORE BUREAU",v:result.exposicaoMercado.scoreBureau}].map((x,i)=>(
+              <div key={i} style={{background:"rgba(0,0,0,0.3)",borderRadius:10,padding:14,border:`1px solid ${G.border}`}}>
+                <p style={{color:G.dim,fontSize:10,letterSpacing:1,margin:"0 0 4px"}}>{x.l}</p>
+                <p style={{color:G.white,fontSize:14,fontWeight:700,margin:0}}>{x.v}</p>
+              </div>
+            ))}
+          </div>
+          <p style={{color:G.gold,fontSize:11,fontWeight:700,letterSpacing:1,margin:"0 0 10px"}}>INSTITUIÇÕES IDENTIFICADAS</p>
+          <div style={{display:"grid",gap:8,marginBottom:14}}>
+            {result.exposicaoMercado.instituicoes.map((inst,i)=>(
+              <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 1fr auto auto",gap:10,alignItems:"center",background:"rgba(0,0,0,0.3)",borderRadius:10,padding:"12px 16px",border:`1px solid ${G.border}`}}>
+                <span style={{color:G.white,fontSize:13,fontWeight:700}}>{inst.banco}</span>
+                <span style={{color:G.muted,fontSize:13}}>{inst.tipo}</span>
+                <span style={{color:G.goldLight,fontSize:14,fontWeight:700}}>{inst.volume}</span>
+                <span style={{background:"rgba(200,169,110,0.1)",color:G.gold,fontSize:11,padding:"3px 10px",borderRadius:10,whiteSpace:"nowrap"}}>{inst.prazo}</span>
+              </div>
+            ))}
+          </div>
+          <p style={{color:G.gold,fontSize:11,fontWeight:700,letterSpacing:1,margin:"0 0 8px"}}>TÍTULOS PÚBLICOS / CVM</p>
+          {result.exposicaoMercado.titulosPublicos.map((t,i)=>(
+            <div key={i} style={{display:"flex",gap:10,marginBottom:6}}><span style={{color:G.gold}}>◆</span><span style={{color:G.muted,fontSize:13}}>{t}</span></div>
+          ))}
+          <div style={{marginTop:14}}><span style={{background:"rgba(74,222,128,0.1)",border:"1px solid rgba(74,222,128,0.3)",color:"#4ade80",fontSize:12,padding:"5px 14px",borderRadius:10}}>✓ {result.exposicaoMercado.restricoes}</span></div>
+        </div>
+
+        {/* Comparativo Setorial */}
+        <div style={{background:G.card,border:`1px solid ${G.border}`,borderLeft:"4px solid #818cf8",borderRadius:14,padding:24}}>
+          <p style={{color:"#818cf8",fontSize:12,letterSpacing:2,fontWeight:700,margin:"0 0 10px"}}>📊 COMPARATIVO SETORIAL</p>
+          <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:16,flexWrap:"wrap"}}>
+            <span style={{color:G.muted,fontSize:13}}>{result.comparativoSetorial.setor}</span>
+            <span style={{background:"rgba(129,140,248,0.15)",border:"1px solid #818cf8",color:"#818cf8",fontSize:11,padding:"3px 12px",borderRadius:10,fontWeight:700}}>{result.comparativoSetorial.posicao}</span>
+          </div>
+          <div style={{display:"grid",gap:8,marginBottom:14}}>
+            {result.comparativoSetorial.dados.map((d,i)=>(
+              <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr auto",gap:12,alignItems:"center",background:"rgba(0,0,0,0.3)",borderRadius:10,padding:"12px 16px",border:`1px solid ${G.border}`}}>
+                <span style={{color:G.muted,fontSize:13}}>{d.indicador}</span>
+                <span style={{color:G.white,fontSize:14,fontWeight:700}}>{d.empresa}</span>
+                <div>
+                  <p style={{color:G.dim,fontSize:10,margin:"0 0 2px"}}>MÉDIA DO SETOR</p>
+                  <p style={{color:G.muted,fontSize:13,margin:0}}>{d.media}</p>
+                </div>
+                <span style={{fontSize:20}}>{d.status==="acima"?"✅":"⚠️"}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{background:"rgba(129,140,248,0.08)",border:"1px solid rgba(129,140,248,0.3)",borderRadius:10,padding:"14px 18px"}}>
+            <p style={{color:"#818cf8",fontSize:11,fontWeight:700,letterSpacing:1,margin:"0 0 6px"}}>💡 INSIGHT BBA</p>
+            <p style={{color:G.white,fontSize:14,margin:0,lineHeight:1.7}}>{result.comparativoSetorial.insight}</p>
+          </div>
+        </div>
+
+        {/* Perfil */}
+        <div style={{background:G.card,border:`1px solid ${G.border}`,borderLeft:`4px solid ${G.goldLight}`,borderRadius:14,padding:24}}>
+          <p style={{color:G.gold,fontSize:12,letterSpacing:2,fontWeight:700,margin:"0 0 14px"}}>🧠 PERFIL DO CLIENTE</p>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+            {[{l:"Tomador de Decisão",v:result.perfil.tomadorDecisao},{l:"Estilo de Comunicação",v:result.perfil.estiloComunicacao},{l:"Relacionamento BBA",v:result.perfil.relacionamentoBBA},{l:"Momento da Empresa",v:result.perfil.momentoEmpresa}].map((x,i)=>(
+              <div key={i} style={{background:"rgba(0,0,0,0.3)",borderRadius:10,padding:14,border:`1px solid ${G.border}`}}>
+                <p style={{color:G.gold,fontSize:10,letterSpacing:1,margin:"0 0 6px"}}>{x.l.toUpperCase()}</p>
+                <p style={{color:G.white,fontSize:14,margin:0,lineHeight:1.6}}>{x.v}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Hábitos */}
+        <div style={{background:G.card,border:`1px solid ${G.border}`,borderLeft:`4px solid ${G.gold}`,borderRadius:14,padding:24}}>
+          <p style={{color:G.gold,fontSize:12,letterSpacing:2,fontWeight:700,margin:"0 0 14px"}}>🛒 HÁBITOS DE CONSUMO FINANCEIRO</p>
+          <div style={{display:"grid",gap:12}}>
+            <div style={{display:"flex",gap:16,alignItems:"flex-start"}}>
+              <span style={{color:G.gold,fontSize:13,fontWeight:700,minWidth:130,flexShrink:0}}>Produtos ativos:</span>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                {result.habitos.produtosUsados.map((p,i)=>(
+                  <span key={i} style={{background:"rgba(200,169,110,0.1)",border:`1px solid ${G.border}`,color:G.goldLight,padding:"5px 14px",borderRadius:12,fontSize:13,fontWeight:600}}>{p}</span>
+                ))}
+              </div>
+            </div>
+            {[{l:"Canal preferido",v:result.habitos.canalPreferido},{l:"Frequência",v:result.habitos.frequenciaContato},{l:"Sensibilidade",v:result.habitos.sensibilidade},{l:"Comportamento",v:result.habitos.comportamento}].map((x,i)=>(
+              <div key={i} style={{display:"flex",gap:16,alignItems:"flex-start"}}>
+                <span style={{color:G.gold,fontSize:13,fontWeight:700,minWidth:130,flexShrink:0}}>{x.l}:</span>
+                <span style={{color:G.white,fontSize:14,lineHeight:1.6}}>{x.v}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Oportunidades + Pauta */}
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+          <div style={{background:G.card,border:`1px solid ${G.border}`,borderLeft:`4px solid ${G.goldLight}`,borderRadius:14,padding:24}}>
+            <p style={{color:G.gold,fontSize:12,letterSpacing:2,fontWeight:700,margin:"0 0 14px"}}>💡 OPORTUNIDADES IA</p>
+            {result.oportunidades.map((o,i)=>(
+              <div key={i} style={{display:"flex",gap:12,marginBottom:12}}><span style={{color:G.goldLight,fontSize:16,flexShrink:0}}>◆</span><span style={{color:G.white,fontSize:14,lineHeight:1.6}}>{o}</span></div>
+            ))}
+          </div>
+          <div style={{background:G.card,border:`1px solid ${G.border}`,borderLeft:`4px solid ${G.gold}`,borderRadius:14,padding:24}}>
+            <p style={{color:G.gold,fontSize:12,letterSpacing:2,fontWeight:700,margin:"0 0 14px"}}>📌 PAUTA SUGERIDA</p>
+            {result.pauta.map((p,i)=>(
+              <div key={i} style={{display:"flex",gap:12,marginBottom:12}}><span style={{color:G.goldLight,fontSize:14,fontWeight:700,minWidth:22,flexShrink:0}}>{i+1}.</span><span style={{color:G.white,fontSize:14,lineHeight:1.6}}>{p}</span></div>
+            ))}
+          </div>
+        </div>
+
+        {/* Rodapé */}
+        <div style={{background:G.card,border:`1px solid ${G.border}`,borderRadius:10,padding:"14px 20px",textAlign:"center"}}>
+          <p style={{color:G.dim,fontSize:12,margin:0,letterSpacing:1}}>✓ Dossiê gerado em 1.8s — Fontes: CVM · Banco Central · IBGE Agro · LinkedIn · Banco de Dados BBA</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── PROTOTYPE ──────────────────────────────────────────────────────────────
+function PrototypeDemo() {
+  const [cnpj,setCnpj]=useState("");
+  const [loading,setLoading]=useState(false);
+  const [result,setResult]=useState(null);
+  const [error,setError]=useState("");
+
+  const handle=()=>{
+    setError(""); setResult(null);
+    const d=cnpj.replace(/\D/g,"");
+    const fmt=d.length===14?`${d.slice(0,2)}.${d.slice(2,5)}.${d.slice(5,8)}/${d.slice(8,12)}-${d.slice(12)}`:cnpj;
+    if(!demoData[fmt]){setError("CNPJ não encontrado. Tente: 12.345.678/0001-99 ou 98.765.432/0001-11");return;}
+    setLoading(true);
+    setTimeout(()=>{setResult(demoData[fmt]);setLoading(false);},1800);
+  };
+
+  return (
+    <div>
+      <div style={{background:G.card,border:`1px solid ${G.border}`,borderRadius:14,padding:24,marginBottom:20}}>
+        <p style={{color:G.gold,fontSize:11,letterSpacing:2,fontWeight:700,margin:"0 0 14px"}}>◈ DEMO — INSIRA O CNPJ DO CLIENTE</p>
+        <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+          <input value={cnpj} onChange={e=>setCnpj(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handle()} placeholder="Ex: 12.345.678/0001-99"
+            style={{flex:1,minWidth:200,background:"rgba(0,0,0,0.4)",border:`1px solid ${G.border}`,borderRadius:8,padding:"12px 16px",color:G.white,fontSize:14,outline:"none"}}/>
+          <button onClick={handle} style={{background:`linear-gradient(135deg,${G.gold},${G.goldLight})`,border:"none",borderRadius:8,padding:"12px 28px",color:"#1A1208",fontWeight:700,fontSize:13,letterSpacing:1}}>GERAR BRIEFING</button>
+        </div>
+        {error&&<p style={{color:"#f87171",fontSize:12,marginTop:10}}>{error}</p>}
+      </div>
+      {loading&&(
+        <div style={{textAlign:"center",padding:40,background:G.card,borderRadius:14,border:`1px solid ${G.border}`}}>
+          <p style={{color:G.gold,fontSize:14,letterSpacing:2,fontWeight:700,margin:0,animation:"pulse 1s infinite"}}>⟳ IQ CLIENT PROCESSANDO...</p>
+          <p style={{color:G.muted,fontSize:12,marginTop:8}}>Buscando dados em 12 fontes simultâneas</p>
+        </div>
+      )}
+      {result&&<Briefing result={result}/>}
+    </div>
+  );
+}
+
+// ── IMPORTACAO ─────────────────────────────────────────────────────────────
+function ImportacaoBase() {
+  const [cnpjs,setCnpjs]=useState("");
+  const [lista,setLista]=useState([]);
+  const [processando,setProcessando]=useState(false);
+  const [resultados,setResultados]=useState([]);
+  const [expandido,setExpandido]=useState(null);
+
+  const parse=t=>t.split(/[\n,;]/).map(c=>c.trim()).filter(Boolean).map(c=>{
+    const d=c.replace(/\D/g,"");
+    return d.length===14?`${d.slice(0,2)}.${d.slice(2,5)}.${d.slice(5,8)}/${d.slice(8,12)}-${d.slice(12)}`:c;
+  });
+
+  const handleArquivo=e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const r=new FileReader();
+    r.onload=ev=>{const lines=ev.target.result.split("\n").map(l=>l.split(/[,;]/)[0].trim()).filter(Boolean);setCnpjs(lines.join("\n"));};
+    r.readAsText(f);
+  };
+
+  const processar=async()=>{
+    if(!lista.length) return;
+    setProcessando(true); setResultados([]);
+    const res=[];
+    for(let i=0;i<lista.length;i++){
+      await new Promise(r=>setTimeout(r,1200));
+      res.push({cnpj:lista[i],data:demoData[lista[i]]||null});
+      setResultados([...res]);
+    }
+    setProcessando(false);
+  };
+
+  return (
+    <div>
+      <span style={{color:G.gold,fontSize:11,letterSpacing:3}}>IMPORTAÇÃO DE BASE</span>
+      <h2 style={{fontFamily:"Georgia,serif",color:G.white,fontSize:32,fontWeight:400,margin:"12px 0 8px"}}>Processar Lista de CNPJs</h2>
+      <p style={{color:G.muted,fontSize:14,margin:"0 0 24px",lineHeight:1.7}}>Cole sua lista de CNPJs ou faça upload do CSV. O IQ Client gera o briefing de cada empresa automaticamente.</p>
+      <div style={{background:G.card,border:`1px solid ${G.border}`,borderRadius:14,padding:24,marginBottom:20}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14,flexWrap:"wrap",gap:10}}>
+          <p style={{color:G.gold,fontSize:11,letterSpacing:2,fontWeight:700,margin:0}}>📋 COLE OS CNPJs OU FAÇA UPLOAD</p>
+          <label style={{background:"rgba(200,169,110,0.1)",border:`1px solid ${G.border}`,color:G.gold,padding:"8px 16px",borderRadius:8,fontSize:12,cursor:"pointer",fontWeight:600}}>
+            ⬆ Upload CSV<input type="file" accept=".csv,.txt" onChange={handleArquivo} style={{display:"none"}}/>
+          </label>
+        </div>
+        <textarea value={cnpjs} onChange={e=>setCnpjs(e.target.value)} rows={6}
+          placeholder={"Cole aqui os CNPJs (um por linha):\n\n12.345.678/0001-99\n98.765.432/0001-11"}
+          style={{width:"100%",background:"rgba(0,0,0,0.4)",border:`1px solid ${G.border}`,borderRadius:10,padding:"14px 16px",color:G.white,fontSize:13,outline:"none",resize:"vertical",fontFamily:"monospace",lineHeight:1.8}}/>
+        <div style={{display:"flex",gap:12,marginTop:14}}>
+          <button onClick={()=>{setLista(parse(cnpjs));setResultados([]);setExpandido(null);}} style={{background:`linear-gradient(135deg,${G.gold},${G.goldLight})`,border:"none",borderRadius:8,padding:"12px 28px",color:"#1A1208",fontWeight:700,fontSize:13,letterSpacing:1}}>VALIDAR LISTA</button>
+          {lista.length>0&&<button onClick={processar} disabled={processando} style={{background:processando?"rgba(200,169,110,0.2)":"rgba(200,169,110,0.1)",border:`1px solid ${G.border}`,borderRadius:8,padding:"12px 28px",color:processando?G.muted:G.gold,fontWeight:700,fontSize:13,letterSpacing:1,cursor:processando?"not-allowed":"pointer"}}>
+            {processando?`⟳ PROCESSANDO... ${resultados.length}/${lista.length}`:`🚀 GERAR ${lista.length} BRIEFINGS`}
+          </button>}
+        </div>
+      </div>
+      {lista.length>0&&!resultados.length&&!processando&&(
+        <div style={{background:G.card,border:`1px solid ${G.border}`,borderRadius:14,padding:24,marginBottom:20}}>
+          <p style={{color:G.gold,fontSize:11,letterSpacing:2,fontWeight:700,margin:"0 0 12px"}}>✓ {lista.length} CNPJs VALIDADOS</p>
+          {lista.map((c,i)=>(
+            <div key={i} style={{display:"flex",gap:14,alignItems:"center",background:"rgba(0,0,0,0.3)",borderRadius:8,padding:"10px 16px",border:`1px solid ${G.border}`,marginBottom:8}}>
+              <span style={{color:G.dim,fontSize:12,minWidth:28}}>{i+1}.</span>
+              <span style={{color:G.white,fontSize:13,fontFamily:"monospace"}}>{c}</span>
+              <span style={{marginLeft:"auto",color:demoData[c]?"#4ade80":G.muted,fontSize:11}}>{demoData[c]?"✓ Na base demo":"⊙ Processará via API"}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {processando&&(
+        <div style={{background:G.card,border:`1px solid ${G.border}`,borderRadius:14,padding:24,marginBottom:20}}>
+          <p style={{color:G.gold,fontSize:11,letterSpacing:2,fontWeight:700,margin:"0 0 12px"}}>⟳ GERANDO BRIEFINGS...</p>
+          <div style={{background:"rgba(200,169,110,0.1)",borderRadius:8,height:8,marginBottom:12}}>
+            <div style={{width:`${(resultados.length/lista.length)*100}%`,height:8,background:`linear-gradient(90deg,${G.gold},${G.goldLight})`,borderRadius:8,transition:"width 0.5s"}}/>
+          </div>
+          <p style={{color:G.muted,fontSize:13,margin:0}}>{resultados.length} de {lista.length} processados</p>
+        </div>
+      )}
+      {resultados.length>0&&(
+        <div>
+          <p style={{color:G.gold,fontSize:11,letterSpacing:2,fontWeight:700,margin:"0 0 16px"}}>📊 RANKING POR SCORE</p>
+          <div style={{display:"grid",gap:12}}>
+            {[...resultados].sort((a,b)=>(b.data?.scoreOportunidade?.total||0)-(a.data?.scoreOportunidade?.total||0)).map((r,i)=>(
+              <div key={i}>
+                <div onClick={()=>r.data&&setExpandido(expandido===r.cnpj?null:r.cnpj)} style={{background:G.card,border:`1px solid ${expandido===r.cnpj?G.gold:G.border}`,borderRadius:12,padding:"18px 22px",cursor:r.data?"pointer":"default",transition:"border 0.2s"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:16,flexWrap:"wrap"}}>
+                    <div style={{width:36,height:36,borderRadius:"50%",background:i===0?`linear-gradient(135deg,${G.gold},${G.goldLight})`:"rgba(200,169,110,0.1)",display:"flex",alignItems:"center",justifyContent:"center",color:i===0?"#1A1208":G.gold,fontWeight:700,fontSize:14,flexShrink:0}}>{i+1}</div>
+                    <div style={{flex:1}}>
+                      <p style={{color:G.white,fontSize:15,fontWeight:700,margin:0}}>{r.data?r.data.empresa:r.cnpj}</p>
+                      <p style={{color:G.muted,fontSize:12,margin:"3px 0 0"}}>{r.data?r.data.setor:"Não encontrado na base demo"}</p>
+                    </div>
+                    {r.data&&<>
+                      <div style={{textAlign:"center"}}><p style={{color:scoreColor(r.data.scoreOportunidade.total),fontSize:22,fontWeight:900,margin:0}}>{r.data.scoreOportunidade.total}</p><p style={{color:G.dim,fontSize:10,margin:0}}>SCORE</p></div>
+                      <span style={{background:riskColor(r.data.risco)+"22",border:`1px solid ${riskColor(r.data.risco)}`,color:riskColor(r.data.risco),padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:700}}>{r.data.risco}</span>
+                      <span style={{background:r.data.timingAcao.cor+"22",border:`1px solid ${r.data.timingAcao.cor}`,color:r.data.timingAcao.cor,padding:"4px 12px",borderRadius:20,fontSize:11,fontWeight:700}}>⏰ {r.data.timingAcao.nivel}</span>
+                      <span style={{color:G.gold,fontSize:13}}>{expandido===r.cnpj?"▲":"▼"}</span>
+                    </>}
+                  </div>
+                </div>
+                {expandido===r.cnpj&&r.data&&(
+                  <div style={{background:"rgba(0,0,0,0.4)",border:`1px solid ${G.border}`,borderTop:"none",borderRadius:"0 0 12px 12px",padding:"20px 22px"}}>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:12,marginBottom:14}}>
+                      {[{l:"Faturamento",v:r.data.faturamento},{l:"Patrimônio",v:r.data.patrimonio},{l:"Espaço de Crédito",v:r.data.exposicaoMercado.espacoEstimado},{l:"Status BBA",v:r.data.status}].map((x,j)=>(
+                        <div key={j} style={{background:G.card,borderRadius:8,padding:"10px 14px",border:`1px solid ${G.border}`}}>
+                          <p style={{color:G.gold,fontSize:10,letterSpacing:1,margin:"0 0 4px"}}>{x.l.toUpperCase()}</p>
+                          <p style={{color:G.white,fontSize:13,fontWeight:700,margin:0}}>{x.v}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{background:G.card,borderRadius:8,padding:"12px 16px",marginBottom:10,border:`1px solid ${G.border}`}}>
+                      <p style={{color:G.gold,fontSize:10,letterSpacing:1,fontWeight:700,margin:"0 0 6px"}}>🎯 ALERTA</p>
+                      <p style={{color:G.white,fontSize:13,margin:0,lineHeight:1.6}}>{r.data.timingAcao.mensagem}</p>
+                    </div>
+                    <div style={{background:`linear-gradient(135deg,${G.gold},${G.goldLight})`,borderRadius:8,padding:"10px 16px"}}>
+                      <p style={{color:"#1A1208",fontSize:13,fontWeight:700,margin:0}}>👉 {r.data.timingAcao.acaoSugerida}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── APP ────────────────────────────────────────────────────────────────────
+function App() {
+  const [active,setActive]=useState("overview");
+  const [user,setUser]=useState(null);
+  const [token,setToken]=useState(null);
+
+  const handleLogin=(u,t)=>{setUser(u);setToken(t);};
+  if(!user) return <LoginScreen onLogin={handleLogin}/>;
+
+  const renderSection=()=>{
+    switch(active){
+      case "overview": return (
+        <div>
+          <div style={{marginBottom:40}}>
+            <span style={{color:G.gold,fontSize:11,letterSpacing:3}}>AI CHALLENGE — ITAÚ BBA 2026</span>
+            <h1 style={{fontSize:"clamp(36px,6vw,56px)",fontFamily:"Georgia,serif",fontWeight:400,color:G.white,margin:"12px 0 8px",lineHeight:1.1}}>IQ Client</h1>
+            <p style={{fontSize:18,color:G.gold,fontStyle:"italic",margin:"0 0 24px"}}>Inteligência de Cliente, na palma do Banker.</p>
+            <p style={{color:G.muted,fontSize:15,lineHeight:1.8,maxWidth:620}}>Uma plataforma de IA que gera dossiês comerciais completos — score de oportunidade, gatilhos automáticos, comparativo setorial, perfil dos decisores e pauta sugerida — em menos de 2 minutos.</p>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:16}}>
+            {[
+              {i:"📋",t:"Briefing Pré-Visita",d:"Dossiê completo gerado automaticamente a partir do CNPJ.",c:G.gold},
+              {i:"⭐",t:"Score de Oportunidade",d:"Índice 0–100 cruzando saúde financeira, momento e timing.",c:G.goldLight},
+              {i:"🎯",t:"Gatilhos Automáticos",d:"Eventos que indicam que a empresa está madura para abordagem.",c:"#f59e0b"},
+              {i:"📊",t:"Comparativo Setorial",d:"Como o cliente se posiciona vs. média dos concorrentes do setor.",c:"#818cf8"},
+              {i:"⏰",t:"Timing de Ação",d:"AGORA, URGENTE ou AGUARDAR — com ação sugerida.",c:G.gold},
+              {i:"👤",t:"Perfil dos Decisores",d:"CEO, CFO e outros executivos-chave com fonte de dados.",c:G.goldLight},
+              {i:"🏦",t:"Exposição no Mercado",d:"SCR, bancos concorrentes e espaço para novo crédito.",c:G.gold},
+            ].map(p=>(
+              <div key={p.t} style={{background:G.card,border:`1px solid ${p.c}44`,borderRadius:16,padding:20,borderTop:`3px solid ${p.c}`}}>
+                <div style={{fontSize:24,marginBottom:10}}>{p.i}</div>
+                <h3 style={{color:p.c,fontSize:14,margin:"0 0 8px",fontFamily:"Georgia,serif"}}>{p.t}</h3>
+                <p style={{color:G.muted,fontSize:12,lineHeight:1.6,margin:0}}>{p.d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+      case "problem": return (
+        <div>
+          <span style={{color:G.gold,fontSize:11,letterSpacing:3}}>O PROBLEMA</span>
+          <h2 style={{fontFamily:"Georgia,serif",color:G.white,fontSize:32,fontWeight:400,margin:"12px 0 32px"}}>O Banker chega na visita sem munição.</h2>
+          <div style={{display:"grid",gap:16}}>
+            {[{l:"Prep manual demorada",d:"Bankers gastam entre 1h e 3h coletando informações dispersas antes de cada visita — em sites, e-mails, sistemas internos e planilhas."},{l:"Informação fragmentada",d:"Dados estão espalhados em múltiplos sistemas: Boletador 360, Portal de Garantias, Bankline, CRM e fontes externas."},{l:"Prospecção no escuro",d:"Identificar novos leads depende do feeling individual do banker — sem apoio de dados estruturados."},{l:"Timing perdido",d:"Mudanças no setor do cliente chegam ao banker depois que a concorrência já agiu."}].map((x,i)=>(
+              <div key={i} style={{display:"grid",gridTemplateColumns:"auto 1fr",gap:20,background:G.card,border:`1px solid ${G.border}`,borderRadius:12,padding:24}}>
+                <div style={{width:40,height:40,borderRadius:"50%",background:"rgba(200,169,110,0.1)",border:`1px solid ${G.border}`,display:"flex",alignItems:"center",justifyContent:"center",color:G.gold,fontSize:14,fontWeight:700,flexShrink:0}}>{i+1}</div>
+                <div><h3 style={{color:G.white,fontSize:15,margin:"0 0 8px"}}>{x.l}</h3><p style={{color:G.muted,fontSize:13,lineHeight:1.6,margin:0}}>{x.d}</p></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+      case "solution": return (
+        <div>
+          <span style={{color:G.gold,fontSize:11,letterSpacing:3}}>A SOLUÇÃO</span>
+          <h2 style={{fontFamily:"Georgia,serif",color:G.white,fontSize:32,fontWeight:400,margin:"12px 0 8px"}}>IQ Client — Como Funciona</h2>
+          <p style={{color:G.muted,fontSize:14,margin:"0 0 36px"}}>Do CNPJ ao dossiê completo em menos de 2 minutos.</p>
+          {[{n:"01",t:"Input do Banker",d:"Banker insere CNPJ ou nome do cliente na plataforma IQ Client."},{n:"02",t:"Coleta Automatizada",d:"IA busca dados em: CVM, IBGE, SCR, bureaus de crédito, notícias do setor e base interna BBA."},{n:"03",t:"Síntese Inteligente",d:"LLM organiza as informações, calcula o Score de Oportunidade, identifica Gatilhos e gera o Comparativo Setorial."},{n:"04",t:"Entrega do Dossiê",d:"Banker recebe o briefing completo com ação sugerida em destaque — direto no Teams via M365 Copilot."}].map((s,i,arr)=>(
+            <div key={i} style={{display:"flex",gap:24,alignItems:"flex-start"}}>
+              <div style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
+                <div style={{width:48,height:48,borderRadius:"50%",background:`linear-gradient(135deg,${G.gold},${G.goldLight})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#1A1208",fontWeight:700,fontSize:13,flexShrink:0}}>{s.n}</div>
+                {i<arr.length-1&&<div style={{width:1,height:48,background:G.border,margin:"8px 0"}}/>}
+              </div>
+              <div style={{paddingBottom:32}}><h3 style={{color:G.white,fontSize:16,margin:"10px 0 8px"}}>{s.t}</h3><p style={{color:G.muted,fontSize:13,lineHeight:1.6,margin:0}}>{s.d}</p></div>
+            </div>
+          ))}
+          <div style={{marginTop:16,background:G.card,border:`1px solid ${G.border}`,borderRadius:12,padding:24}}>
+            <p style={{color:G.gold,fontSize:11,letterSpacing:2,margin:"0 0 12px"}}>TECNOLOGIAS & INTEGRAÇÃO M365 COPILOT</p>
+            <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+              {["M365 Copilot Studio","Microsoft Teams","LLM (Claude / GPT-4)","APIs Públicas (CVM, IBGE, SCR)","Bureaus de Crédito","SharePoint + Graph API"].map(t=>(
+                <span key={t} style={{background:"rgba(200,169,110,0.08)",border:`1px solid ${G.border}`,color:G.gold,padding:"6px 14px",borderRadius:20,fontSize:12}}>{t}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+      case "prototype": return (
+        <div>
+          <span style={{color:G.gold,fontSize:11,letterSpacing:3}}>PROTÓTIPO INTERATIVO</span>
+          <h2 style={{fontFamily:"Georgia,serif",color:G.white,fontSize:32,fontWeight:400,margin:"12px 0 8px"}}>Experimente o IQ Client</h2>
+          <p style={{color:G.muted,fontSize:14,margin:"0 0 12px"}}>Digite um CNPJ e veja o dossiê completo gerado em segundos.</p>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:24}}>
+            {["⭐ Score","⏰ Timing","🎯 Gatilhos","📊 Comparativo Setorial","📰 Setor","👤 CEO/CFO","🏦 Mercado","💰 Financeiro","🧠 Perfil","🛒 Hábitos","💡 Oportunidades","📌 Pauta"].map(t=>(
+              <span key={t} style={{background:"rgba(200,169,110,0.08)",border:`1px solid ${G.border}`,color:G.gold,padding:"4px 12px",borderRadius:20,fontSize:11}}>{t}</span>
+            ))}
+          </div>
+          <PrototypeDemo/>
+        </div>
+      );
+      case "importacao": return <ImportacaoBase/>;
+      case "team": return (
+        <div>
+          <span style={{color:G.gold,fontSize:11,letterSpacing:3}}>O TIME</span>
+          <h2 style={{fontFamily:"Georgia,serif",color:G.white,fontSize:32,fontWeight:400,margin:"12px 0 8px"}}>Nossa Equipe</h2>
+          <p style={{color:G.muted,fontSize:14,margin:"0 0 32px"}}>Negócios & IA — CB Itaú BBA</p>
+          {/* Time */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:20,marginBottom:24}}>
+            {teamMembers.filter(m=>!m.mentor).map((m,i)=>(
+              <div key={i} style={{background:G.card,border:`1px solid ${i===0?"#E8C87A":G.border}`,borderRadius:14,padding:24,borderTop:`3px solid ${i===0?G.goldLight:G.gold}`,textAlign:"center"}}>
+                <div style={{width:52,height:52,borderRadius:"50%",background:`linear-gradient(135deg,${G.gold},${G.goldLight})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#1A1208",fontWeight:700,fontSize:16,margin:"0 auto 12px"}}>
+                  {m.name.split(" ").slice(0,2).map(w=>w[0]).join("")}
+                </div>
+                {i===0&&<span style={{background:"rgba(232,200,122,0.15)",border:"1px solid #E8C87A",color:"#E8C87A",fontSize:10,padding:"2px 10px",borderRadius:10,fontWeight:700,letterSpacing:1,display:"inline-block",marginBottom:8}}>👑 LÍDER</span>}
+                <h3 style={{color:G.white,fontSize:14,margin:"0 0 4px"}}>{m.name}</h3>
+                <p style={{color:G.gold,fontSize:11,margin:0,letterSpacing:1}}>{m.role}</p>
+              </div>
+            ))}
+          </div>
+          {/* Mentor */}
+          {teamMembers.filter(m=>m.mentor).map((m,i)=>(
+            <div key={i} style={{background:"rgba(200,169,110,0.04)",border:`1px solid ${G.border}`,borderRadius:14,padding:24,display:"flex",alignItems:"center",gap:20}}>
+              <div style={{width:56,height:56,borderRadius:"50%",background:"linear-gradient(135deg,#2E2210,#4A3820)",border:`2px solid ${G.gold}`,display:"flex",alignItems:"center",justifyContent:"center",color:G.gold,fontWeight:700,fontSize:18,flexShrink:0}}>
+                {m.name.split(" ").slice(0,2).map(w=>w[0]).join("")}
+              </div>
+              <div>
+                <span style={{background:"rgba(200,169,110,0.1)",border:`1px solid ${G.border}`,color:G.gold,fontSize:10,padding:"2px 10px",borderRadius:10,fontWeight:700,letterSpacing:1,display:"inline-block",marginBottom:6}}>⭐ MENTOR</span>
+                <h3 style={{color:G.white,fontSize:15,margin:"0 0 4px"}}>{m.name}</h3>
+                <p style={{color:G.muted,fontSize:12,margin:0}}>Superintendente — Itaú BBA</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+      case "impact": return (
+        <div>
+          <span style={{color:G.gold,fontSize:11,letterSpacing:3}}>IMPACTO ESPERADO</span>
+          <h2 style={{fontFamily:"Georgia,serif",color:G.white,fontSize:32,fontWeight:400,margin:"12px 0 32px"}}>Por que o IQ Client vence o Challenge?</h2>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:16,marginBottom:24}}>
+            {[{metric:"70%",label:"Redução no tempo de prep pré-visita"},{metric:"3x",label:"Mais visitas de prospecção por mês/banker"},{metric:"100%",label:"Segmentos do Banco atendidos"},{metric:"R$0",label:"Custo adicional de licença — usa M365 existente"}].map((x,i)=>(
+              <div key={i} style={{background:G.card,border:`1px solid ${G.border}`,borderRadius:14,padding:28,textAlign:"center"}}>
+                <p style={{color:G.goldLight,fontSize:38,fontFamily:"Georgia,serif",margin:"0 0 8px",fontWeight:400}}>{x.metric}</p>
+                <p style={{color:G.muted,fontSize:12,lineHeight:1.5,margin:0}}>{x.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Card Assertividade */}
+          <div style={{background:"rgba(129,140,248,0.06)",border:"1px solid rgba(129,140,248,0.35)",borderRadius:14,padding:28,marginBottom:20}}>
+            <p style={{color:"#818cf8",fontSize:12,letterSpacing:2,fontWeight:700,margin:"0 0 20px"}}>🎯 ASSERTIVIDADE DOS DADOS — FONTES E CONFIABILIDADE</p>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:14,marginBottom:20}}>
+              {[
+                {fonte:"SCR — Banco Central",dado:"Exposição no sistema financeiro",nivel:98,cor:"#4ade80"},
+                {fonte:"CVM",dado:"Títulos públicos, CRA, CRI, Debêntures",nivel:99,cor:"#4ade80"},
+                {fonte:"Receita Federal / SPED",dado:"Faturamento e dados financeiros",nivel:92,cor:"#4ade80"},
+                {fonte:"Serasa / Boa Vista",dado:"Score de crédito e restrições",nivel:97,cor:"#4ade80"},
+                {fonte:"LinkedIn / Crunchbase",dado:"Executivos-chave (CEO, CFO, CTO)",nivel:85,cor:"#fbbf24"},
+                {fonte:"Imprensa Especializada",dado:"Radar do setor e notícias recentes",nivel:88,cor:"#fbbf24"},
+                {fonte:"IBGE / EMBRAPA",dado:"Dados do agronegócio e safras",nivel:95,cor:"#4ade80"},
+                {fonte:"Base Interna BBA",dado:"Histórico e relacionamento do cliente",nivel:100,cor:"#4ade80"},
+              ].map((x,i)=>(
+                <div key={i} style={{background:"rgba(0,0,0,0.3)",borderRadius:10,padding:"14px 16px",border:`1px solid ${G.border}`}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+                    <p style={{color:G.white,fontSize:13,fontWeight:700,margin:0}}>{x.fonte}</p>
+                    <span style={{color:x.cor,fontSize:13,fontWeight:900}}>{x.nivel}%</span>
+                  </div>
+                  <p style={{color:G.muted,fontSize:11,margin:"0 0 8px"}}>{x.dado}</p>
+                  <div style={{background:"rgba(255,255,255,0.05)",borderRadius:4,height:5}}>
+                    <div style={{width:`${x.nivel}%`,height:5,background:x.cor,borderRadius:4}}/>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{background:"rgba(129,140,248,0.08)",border:"1px solid rgba(129,140,248,0.3)",borderRadius:10,padding:"14px 18px"}}>
+              <p style={{color:"#818cf8",fontSize:12,fontWeight:700,margin:"0 0 6px"}}>💡 ÍNDICE GERAL DE ASSERTIVIDADE DO DOSSIÊ</p>
+              <div style={{display:"flex",alignItems:"center",gap:16}}>
+                <div style={{flex:1,background:"rgba(255,255,255,0.05)",borderRadius:6,height:12}}>
+                  <div style={{width:"94%",height:12,background:"linear-gradient(90deg,#818cf8,#a5b4fc)",borderRadius:6}}/>
+                </div>
+                <span style={{color:"#a5b4fc",fontSize:22,fontWeight:900,flexShrink:0}}>94%</span>
+              </div>
+              <p style={{color:G.muted,fontSize:12,margin:"8px 0 0",lineHeight:1.6}}>O IQ Client cruza múltiplas fontes públicas e internas para garantir máxima confiabilidade. Dados com menor assertividade (LinkedIn, imprensa) são sempre indicados com a fonte para o banker validar antes da visita.</p>
+            </div>
+          </div>
+
+          <div style={{display:"grid",gap:14}}>
+            {[{i:"🏆",t:"Aplicável a todos os segmentos",d:"Atacado, Middle, Corporate, Agro — qualquer banker do BBA pode usar o IQ Client."},{i:"⚡",t:"Roda no M365 Copilot — custo zero",d:"Construído no Copilot Studio e entregue no Teams. Usa a infraestrutura Microsoft que o Itaú já possui."},{i:"📈",t:"ROI mensurável",d:"Mais tempo disponível = mais visitas = mais negócios fechados."},{i:"🤝",t:"Gerado por quem usa",d:"O projeto nasce do olhar de quem está na ponta comercial — com vivência real de portfólio e visitas."}].map((x,i)=>(
+              <div key={i} style={{display:"flex",gap:16,background:G.card,border:`1px solid ${G.border}`,borderRadius:12,padding:20}}>
+                <span style={{fontSize:22,flexShrink:0}}>{x.i}</span>
+                <div><h3 style={{color:G.white,fontSize:15,margin:"0 0 6px"}}>{x.t}</h3><p style={{color:G.muted,fontSize:13,lineHeight:1.6,margin:0}}>{x.d}</p></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+      default: return null;
+    }
+  };
+
+  return (
+    <div className="protected" style={{display:"flex",flexDirection:"column",height:"100vh",background:G.bg,color:G.white,overflow:"hidden"}}>
+      <Watermark user={user} token={token}/>
+
+      {/* Header */}
+      <div style={{borderBottom:`1px solid ${G.border}`,padding:"14px 32px",display:"flex",alignItems:"center",justifyContent:"space-between",background:"rgba(14,12,8,0.98)",flexShrink:0,zIndex:100}}>
+        <div style={{display:"flex",alignItems:"center",gap:12}}>
+          <div style={{width:30,height:30,background:`linear-gradient(135deg,${G.gold},${G.goldLight})`,borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>◈</div>
+          <span style={{color:G.white,fontFamily:"Georgia,serif",fontSize:17}}>IQ Client</span>
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:16}}>
+          <span style={{color:G.dim,fontSize:11,letterSpacing:1}}>👤 {user}</span>
+          <span style={{color:G.dim,fontSize:11,letterSpacing:2}}>ITAÚ BBA — AI CHALLENGE 2026</span>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div style={{display:"flex",flex:1,overflow:"hidden"}}>
+        {/* Sidebar */}
+        <div style={{width:185,borderRight:`1px solid ${G.border}`,padding:"24px 0",flexShrink:0,background:G.bg,overflowY:"auto"}}>
+          {sections.map(s=>(
+            <button key={s.id} onClick={()=>setActive(s.id)} style={{width:"100%",background:active===s.id?"rgba(200,169,110,0.08)":"transparent",border:"none",borderRight:active===s.id?`2px solid ${G.gold}`:"2px solid transparent",padding:"11px 20px",textAlign:"left",cursor:"pointer",display:"flex",alignItems:"center",gap:10,transition:"all 0.2s"}}>
+              <span style={{color:active===s.id?G.gold:G.dim,fontSize:13}}>{s.icon}</span>
+              <span style={{color:active===s.id?G.white:G.dim,fontSize:12}}>{s.label}</span>
+            </button>
+          ))}
+          <div style={{margin:"24px 20px 0",paddingTop:20,borderTop:`1px solid ${G.border}`}}>
+            <p style={{color:G.dim,fontSize:10,letterSpacing:1,margin:"0 0 4px"}}>INSCRIÇÃO ATÉ</p>
+            <p style={{color:G.gold,fontSize:13,fontWeight:700,margin:0}}>22 de Maio</p>
+          </div>
+        </div>
+
+        {/* Conteúdo */}
+        <div key={active} style={{flex:1,overflowY:"auto",padding:"40px 48px",background:G.bg,animation:"fadeIn 0.3s ease"}}>
+          {renderSection()}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.render(<App/>, document.getElementById("root"));
+</script>
+</body>
+</html>
+
