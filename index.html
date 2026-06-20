@@ -1,13 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>IQ Client — Itaú BBA AI Challenge 2026</title>
-<script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone@7.23.5/babel.min.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body, #root { height: 100%; width: 100%; overflow: hidden; }
@@ -63,6 +62,7 @@ const sections = [
   {id:"importacao",label:"Importar Base",icon:"⊞"},
   {id:"team",     label:"Time",        icon:"◉"},
   {id:"impact",   label:"Impacto",     icon:"◆"},
+  {id:"pitch",    label:"🎯 Pitch",    icon:"▶"},
 ];
 
 const teamMembers = [
@@ -683,6 +683,223 @@ function ImportacaoBase() {
   );
 }
 
+
+// ── PITCH SLIDES ───────────────────────────────────────────────────────────
+function PitchSlides() {
+  const [slide, setSlide] = React.useState(0);
+
+  const slides = [
+    {
+      tipo: "CAPA",
+      conteudo: null,
+    },
+    {
+      tipo: "P",
+      label: "PROBLEMA",
+      tempo: "20 segundos",
+      cor: "#ef4444",
+      icone: "P",
+      fala: "Bankers do Itaú BBA gastam entre 1h e 3h preparando cada visita comercial — garimpando informações dispersas em CRM, Bankline e fontes externas. Chegam na reunião sem saber quem vai atender, o que o cliente já tem no mercado e se o momento é o certo para fazer uma proposta.",
+      tela: null,
+    },
+    {
+      tipo: "V",
+      label: "VOLUME",
+      tempo: "20 segundos",
+      cor: "#f59e0b",
+      icone: "V",
+      fala: "Isso acontece em cada visita, de cada banker, em todos os segmentos do BBA — CB, Atacado, Agro, Middle e Infra & Energia. São milhares de horas perdidas por mês em prep manual, custando oportunidades de negócio que a concorrência está aproveitando.",
+      numeros: [
+        {valor: "1h–3h", desc: "por visita de prep manual"},
+        {valor: "100%", desc: "dos segmentos BBA impactados"},
+        {valor: "Milhares", desc: "de horas perdidas por mês"},
+      ],
+    },
+    {
+      tipo: "T",
+      label: "TESE DE IA",
+      tempo: "40 segundos",
+      cor: "#C8A96E",
+      icone: "T",
+      fala: "O IQ Client usa IA generativa para gerar um dossiê completo em menos de 2 minutos a partir de um único CNPJ. Com protótipo funcional rodando agora, integrado ao M365 Copilot — infraestrutura que o Itaú já possui, custo adicional zero.",
+      blocos: [
+        {i:"⭐", t:"Score de Oportunidade", d:"0 a 100 por IA"},
+        {i:"⏰", t:"Timing de Ação", d:"AGORA / URGENTE / AGUARDAR"},
+        {i:"🎯", t:"Gatilhos Automáticos", d:"Eventos que indicam abordagem"},
+        {i:"👤", t:"CEO & CFO", d:"Decisores identificados"},
+        {i:"🏦", t:"Exposição no Mercado", d:"SCR + CVM + Bureaus"},
+        {i:"📊", t:"Comparativo Setorial", d:"vs. média do setor"},
+      ],
+      bases: [
+        {nome:"CVM", desc:"Títulos, CRA, CRI, Debêntures"},
+        {nome:"Receita Federal", desc:"Faturamento e dados financeiros"},
+        {nome:"Banco Central / SCR", desc:"Exposição no sistema financeiro"},
+        {nome:"IBGE / EMBRAPA", desc:"Dados do agronegócio"},
+        {nome:"Serasa / Boa Vista", desc:"Score de crédito e restrições"},
+        {nome:"Base Interna BBA", desc:"CRM, Boletador 360, histórico"},
+      ],
+    },
+    {
+      tipo: "P2",
+      label: "PEDIDO",
+      tempo: "20 segundos",
+      cor: "#4ade80",
+      icone: "P",
+      fala: "Pedimos aprovação para desenvolver o MVP integrado com as fontes reais do Banco — com piloto na carteira do CB em 30 dias, expansão para todos os segmentos em 90 dias, investimento estimado de R$ 60k a R$ 100k em horas internas de TI.",
+      roadmap: [
+        {prazo:"30 dias", acao:"MVP integrado + piloto CB"},
+        {prazo:"60 dias", acao:"Expansão para Agro e Atacado"},
+        {prazo:"90 dias", acao:"100% dos segmentos BBA"},
+      ],
+    },
+  ];
+
+  const total = slides.length;
+  const current = slides[slide];
+
+  const next = () => setSlide(s => Math.min(s+1, total-1));
+  const prev = () => setSlide(s => Math.max(s-1, 0));
+
+  React.useEffect(() => {
+    const handler = (e) => {
+      if(e.key === "ArrowRight" || e.key === " ") next();
+      if(e.key === "ArrowLeft") prev();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  // CAPA
+  if(current.tipo === "CAPA") return (
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",textAlign:"center",animation:"fadeIn 0.5s ease"}}>
+      <div style={{fontSize:60,marginBottom:24}}>◈</div>
+      <h1 style={{fontFamily:"Georgia,serif",fontSize:56,fontWeight:400,color:G.white,margin:"0 0 16px",lineHeight:1.1}}>IQ Client</h1>
+      <p style={{fontSize:22,color:G.gold,fontStyle:"italic",margin:"0 0 40px"}}>Inteligência de Cliente, na palma do Banker.</p>
+      <div style={{display:"flex",gap:16,marginBottom:48,flexWrap:"wrap",justifyContent:"center"}}>
+        {["Caroline Garcia Souza","Lívia Campos Peralis","Roberto Buchweitz Avila","Lennyn Semeghini"].map((n,i)=>(
+          <div key={i} style={{background:"rgba(200,169,110,0.1)",border:`1px solid ${G.border}`,borderRadius:10,padding:"10px 20px"}}>
+            <p style={{color:G.white,fontSize:14,fontWeight:700,margin:0}}>{n}</p>
+            <p style={{color:G.gold,fontSize:11,margin:0}}>{i===0?"Líder do Projeto":"Negócios & IA"}</p>
+          </div>
+        ))}
+      </div>
+      <p style={{color:G.muted,fontSize:14,letterSpacing:2}}>AI CHALLENGE CB + INFRA & ENERGIA 2026</p>
+      <p style={{color:G.dim,fontSize:12,marginTop:8}}>Mentor: Rodrigo Augusto Pereira Zago — Gerente Regional</p>
+      <div style={{marginTop:48,display:"flex",alignItems:"center",gap:12}}>
+        <button onClick={next} style={{background:`linear-gradient(135deg,${G.gold},${G.goldLight})`,border:"none",borderRadius:12,padding:"14px 40px",color:"#1A1208",fontWeight:700,fontSize:16,letterSpacing:1}}>
+          INICIAR APRESENTAÇÃO ▶
+        </button>
+      </div>
+    </div>
+  );
+
+  // SLIDES P-V-T-P
+  return (
+    <div style={{display:"flex",flexDirection:"column",height:"100%",animation:"fadeIn 0.4s ease"}}>
+
+      {/* Barra superior */}
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"16px 32px",borderBottom:`1px solid ${G.border}`,flexShrink:0}}>
+        <div style={{display:"flex",alignItems:"center",gap:16}}>
+          {["P","V","T","P"].map((l,i)=>(
+            <div key={i} style={{
+              width:40,height:40,borderRadius:"50%",
+              background:i+1===slide?[`#ef4444`,"#f59e0b","#C8A96E","#4ade80"][i]:"rgba(255,255,255,0.05)",
+              border:`2px solid ${i+1<=slide?["#ef4444","#f59e0b","#C8A96E","#4ade80"][i]:G.border}`,
+              display:"flex",alignItems:"center",justifyContent:"center",
+              color:i+1===slide?"#fff":G.dim,fontWeight:700,fontSize:16,
+              transition:"all 0.3s",
+            }}>{l}</div>
+          ))}
+          <span style={{color:G.muted,fontSize:13}}>{current.label} — {current.tempo}</span>
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:8}}>
+          <span style={{color:G.dim,fontSize:12}}>{slide}/{total-1}</span>
+        </div>
+      </div>
+
+      {/* Conteúdo */}
+      <div style={{flex:1,overflowY:"auto",padding:"32px 48px"}}>
+
+        {/* Header do slide */}
+        <div style={{display:"flex",alignItems:"center",gap:20,marginBottom:32}}>
+          <div style={{width:64,height:64,borderRadius:"50%",background:current.cor,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:900,fontSize:28,flexShrink:0}}>
+            {current.icone}
+          </div>
+          <div>
+            <p style={{color:current.cor,fontSize:12,letterSpacing:3,fontWeight:700,margin:0}}>{current.tipo === "P2" ? "P" : current.tipo} — {current.label}</p>
+            <p style={{color:G.white,fontSize:28,fontFamily:"Georgia,serif",fontWeight:400,margin:"4px 0 0",lineHeight:1.2}}>{current.fala}</p>
+          </div>
+        </div>
+
+        {/* Números - Volume */}
+        {current.numeros && (
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:20,marginBottom:24}}>
+            {current.numeros.map((n,i)=>(
+              <div key={i} style={{background:"rgba(245,158,11,0.08)",border:"1px solid rgba(245,158,11,0.3)",borderRadius:14,padding:28,textAlign:"center"}}>
+                <p style={{color:"#f59e0b",fontSize:40,fontFamily:"Georgia,serif",fontWeight:400,margin:"0 0 8px"}}>{n.valor}</p>
+                <p style={{color:G.muted,fontSize:13,margin:0,lineHeight:1.5}}>{n.desc}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Blocos - Tese */}
+        {current.blocos && (
+          <div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14,marginBottom:24}}>
+              {current.blocos.map((b,i)=>(
+                <div key={i} style={{background:"rgba(200,169,110,0.06)",border:`1px solid ${G.border}`,borderRadius:12,padding:18,display:"flex",gap:14,alignItems:"flex-start"}}>
+                  <span style={{fontSize:24,flexShrink:0}}>{b.i}</span>
+                  <div>
+                    <p style={{color:G.white,fontSize:13,fontWeight:700,margin:"0 0 4px"}}>{b.t}</p>
+                    <p style={{color:G.muted,fontSize:12,margin:0}}>{b.d}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Bases de dados */}
+            <div style={{background:"rgba(129,140,248,0.06)",border:"1px solid rgba(129,140,248,0.3)",borderRadius:14,padding:24}}>
+              <p style={{color:"#818cf8",fontSize:12,letterSpacing:2,fontWeight:700,margin:"0 0 16px"}}>🔌 BASES QUE O TI PRECISA INTEGRAR</p>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+                {current.bases.map((b,i)=>(
+                  <div key={i} style={{background:"rgba(0,0,0,0.3)",borderRadius:10,padding:"12px 16px",border:`1px solid ${G.border}`}}>
+                    <p style={{color:G.white,fontSize:13,fontWeight:700,margin:"0 0 4px"}}>{b.nome}</p>
+                    <p style={{color:G.muted,fontSize:11,margin:0}}>{b.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Roadmap - Pedido */}
+        {current.roadmap && (
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:20,marginTop:16}}>
+            {current.roadmap.map((r,i)=>(
+              <div key={i} style={{background:"rgba(74,222,128,0.06)",border:"1px solid rgba(74,222,128,0.3)",borderRadius:14,padding:28,textAlign:"center"}}>
+                <p style={{color:"#4ade80",fontSize:32,fontFamily:"Georgia,serif",fontWeight:400,margin:"0 0 8px"}}>{r.prazo}</p>
+                <p style={{color:G.white,fontSize:13,margin:0,lineHeight:1.5}}>{r.acao}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Navegação */}
+      <div style={{borderTop:`1px solid ${G.border}`,padding:"16px 32px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
+        <button onClick={prev} disabled={slide===0} style={{background:"rgba(200,169,110,0.1)",border:`1px solid ${G.border}`,borderRadius:8,padding:"10px 24px",color:slide===0?G.dim:G.gold,fontWeight:700,fontSize:13,cursor:slide===0?"not-allowed":"pointer"}}>
+          ← ANTERIOR
+        </button>
+        <p style={{color:G.dim,fontSize:12,margin:0}}>← → para navegar | Espaço para avançar</p>
+        <button onClick={next} disabled={slide===total-1} style={{background:slide===total-1?"rgba(200,169,110,0.1)":`linear-gradient(135deg,${G.gold},${G.goldLight})`,border:"none",borderRadius:8,padding:"10px 24px",color:slide===total-1?G.dim:"#1A1208",fontWeight:700,fontSize:13,cursor:slide===total-1?"not-allowed":"pointer"}}>
+          PRÓXIMO →
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── APP ────────────────────────────────────────────────────────────────────
 function App() {
   const [active,setActive]=useState("overview");
@@ -800,7 +1017,7 @@ function App() {
               <div>
                 <span style={{background:"rgba(200,169,110,0.1)",border:`1px solid ${G.border}`,color:G.gold,fontSize:10,padding:"2px 10px",borderRadius:10,fontWeight:700,letterSpacing:1,display:"inline-block",marginBottom:6}}>⭐ MENTOR</span>
                 <h3 style={{color:G.white,fontSize:15,margin:"0 0 4px"}}>{m.name}</h3>
-                <p style={{color:G.muted,fontSize:12,margin:0}}>Superintendente — Itaú BBA</p>
+                <p style={{color:G.muted,fontSize:12,margin:0}}>Gerente Regional — Itaú BBA</p>
               </div>
             </div>
           ))}
@@ -867,6 +1084,131 @@ function App() {
           </div>
         </div>
       );
+      case "pitch": return <PitchSlides/>;
+
+      case "apresentacao": return (
+        <div style={{animation:"fadeIn 0.3s ease"}}>
+
+          {/* Header da Apresentação */}
+          <div style={{textAlign:"center", marginBottom:40}}>
+            <div style={{display:"inline-block", background:`linear-gradient(135deg,${G.gold},${G.goldLight})`, borderRadius:16, padding:"8px 24px", marginBottom:16}}>
+              <span style={{color:"#1A1208", fontSize:12, fontWeight:700, letterSpacing:3}}>AI CHALLENGE CB + INFRA & ENERGIA 2026</span>
+            </div>
+            <h1 style={{fontFamily:"Georgia,serif", color:G.white, fontSize:"clamp(40px,6vw,72px)", fontWeight:400, margin:"0 0 8px", lineHeight:1.1}}>IQ Client</h1>
+            <p style={{color:G.gold, fontSize:20, fontStyle:"italic", margin:"0 0 8px"}}>Inteligência de Cliente, na palma do Banker.</p>
+            <p style={{color:G.muted, fontSize:14, margin:0}}>carogiacomo.github.io/-iqclient</p>
+          </div>
+
+          {/* Cards P-V-T-P */}
+          <div style={{display:"grid", gap:16, marginBottom:32}}>
+
+            {/* P - PROBLEMA */}
+            <div style={{background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.4)", borderLeft:"5px solid #ef4444", borderRadius:14, padding:24}}>
+              <div style={{display:"flex", alignItems:"center", gap:12, marginBottom:12}}>
+                <div style={{width:44, height:44, borderRadius:10, background:"#ef4444", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontWeight:900, fontSize:20, flexShrink:0}}>P</div>
+                <div>
+                  <p style={{color:"#ef4444", fontSize:13, fontWeight:700, letterSpacing:2, margin:0}}>PROBLEMA</p>
+                  <p style={{color:G.dim, fontSize:11, margin:0}}>20 segundos</p>
+                </div>
+              </div>
+              <p style={{color:G.white, fontSize:15, lineHeight:1.8, margin:0, fontStyle:"italic"}}>
+                "Bankers do Itaú BBA gastam entre 1h e 3h preparando cada visita comercial — garimpando informações dispersas em CRM, Bankline e fontes externas. Chegam na reunião sem saber quem vai atender, o que o cliente já tem no mercado e se o momento é o certo para fazer uma proposta."
+              </p>
+            </div>
+
+            {/* V - VOLUME */}
+            <div style={{background:"rgba(245,158,11,0.08)", border:"1px solid rgba(245,158,11,0.4)", borderLeft:"5px solid #f59e0b", borderRadius:14, padding:24}}>
+              <div style={{display:"flex", alignItems:"center", gap:12, marginBottom:12}}>
+                <div style={{width:44, height:44, borderRadius:10, background:"#f59e0b", display:"flex", alignItems:"center", justifyContent:"center", color:"#1A1208", fontWeight:900, fontSize:20, flexShrink:0}}>V</div>
+                <div>
+                  <p style={{color:"#f59e0b", fontSize:13, fontWeight:700, letterSpacing:2, margin:0}}>VOLUME</p>
+                  <p style={{color:G.dim, fontSize:11, margin:0}}>20 segundos</p>
+                </div>
+              </div>
+              <p style={{color:G.white, fontSize:15, lineHeight:1.8, margin:0, fontStyle:"italic"}}>
+                "Isso acontece em cada visita, de cada banker, em todos os segmentos do BBA — CB, Atacado, Agro, Middle e Infra & Energia. São milhares de horas perdidas por mês em prep manual, custando oportunidades de negócio que a concorrência está aproveitando."
+              </p>
+            </div>
+
+            {/* T - TESE DE IA */}
+            <div style={{background:"rgba(200,169,110,0.08)", border:`1px solid ${G.border}`, borderLeft:`5px solid ${G.gold}`, borderRadius:14, padding:24}}>
+              <div style={{display:"flex", alignItems:"center", gap:12, marginBottom:12}}>
+                <div style={{width:44, height:44, borderRadius:10, background:`linear-gradient(135deg,${G.gold},${G.goldLight})`, display:"flex", alignItems:"center", justifyContent:"center", color:"#1A1208", fontWeight:900, fontSize:20, flexShrink:0}}>T</div>
+                <div>
+                  <p style={{color:G.gold, fontSize:13, fontWeight:700, letterSpacing:2, margin:0}}>TESE DE IA</p>
+                  <p style={{color:G.dim, fontSize:11, margin:0}}>40 segundos</p>
+                </div>
+              </div>
+              <p style={{color:G.white, fontSize:15, lineHeight:1.8, margin:"0 0 16px", fontStyle:"italic"}}>
+                "O IQ Client resolve isso. A partir de um único CNPJ, nossa solução usa IA generativa para gerar automaticamente um dossiê completo em menos de 2 minutos — com CEO e CFO, exposição no sistema financeiro, score de oportunidade, gatilhos automáticos de prospecção e pauta sugerida. Temos um protótipo funcional rodando agora — a solução roda dentro do M365 Copilot, que o Itaú já possui, com custo adicional zero."
+              </p>
+              {/* Bases de integração */}
+              <div style={{background:"rgba(0,0,0,0.3)", borderRadius:10, padding:16, border:`1px solid ${G.border}`}}>
+                <p style={{color:G.gold, fontSize:11, fontWeight:700, letterSpacing:2, margin:"0 0 12px"}}>🔗 BASES SUGERIDAS PARA INTEGRAÇÃO COM O TI</p>
+                <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:8}}>
+                  {[
+                    {icon:"🏦", nome:"Banco Central — SCR", desc:"Exposição no sistema financeiro"},
+                    {icon:"📋", nome:"CVM", desc:"Títulos públicos, CRA, CRI, Debêntures"},
+                    {icon:"🏛️", nome:"Receita Federal / SPED", desc:"Faturamento e dados financeiros"},
+                    {icon:"📊", nome:"Serasa / Boa Vista", desc:"Score de crédito e restrições"},
+                    {icon:"🌾", nome:"IBGE / EMBRAPA", desc:"Dados do agronegócio e safras"},
+                    {icon:"🔵", nome:"Microsoft Graph API", desc:"CRM e base interna BBA via M365"},
+                    {icon:"📰", nome:"Valor Econômico / Globo Rural", desc:"Radar do setor e notícias"},
+                    {icon:"💻", nome:"M365 Copilot Studio", desc:"Infraestrutura já licenciada pelo Itaú"},
+                  ].map((b,i)=>(
+                    <div key={i} style={{display:"flex", gap:10, alignItems:"flex-start", background:"rgba(200,169,110,0.05)", borderRadius:8, padding:"8px 12px"}}>
+                      <span style={{fontSize:16, flexShrink:0}}>{b.icon}</span>
+                      <div>
+                        <p style={{color:G.white, fontSize:12, fontWeight:700, margin:0}}>{b.nome}</p>
+                        <p style={{color:G.muted, fontSize:11, margin:0}}>{b.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* P - PEDIDO */}
+            <div style={{background:"rgba(129,140,248,0.08)", border:"1px solid rgba(129,140,248,0.4)", borderLeft:"5px solid #818cf8", borderRadius:14, padding:24}}>
+              <div style={{display:"flex", alignItems:"center", gap:12, marginBottom:12}}>
+                <div style={{width:44, height:44, borderRadius:10, background:"#818cf8", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontWeight:900, fontSize:20, flexShrink:0}}>P</div>
+                <div>
+                  <p style={{color:"#818cf8", fontSize:13, fontWeight:700, letterSpacing:2, margin:0}}>PEDIDO</p>
+                  <p style={{color:G.dim, fontSize:11, margin:0}}>20 segundos</p>
+                </div>
+              </div>
+              <p style={{color:G.white, fontSize:15, lineHeight:1.8, margin:"0 0 16px", fontStyle:"italic"}}>
+                "Pedimos aprovação para desenvolver o MVP integrado com as fontes reais do Banco — com piloto na carteira do CB em 30 dias, expansão para todos os segmentos em 90 dias, investimento estimado de R$ 60k a R$ 100k em horas internas de TI."
+              </p>
+              <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12}}>
+                {[{v:"30 dias", l:"Piloto CB"},{v:"90 dias", l:"Expansão BBA"},{v:"R$0", l:"Custo de licença"}].map((x,i)=>(
+                  <div key={i} style={{background:`linear-gradient(135deg,${G.gold}22,${G.goldLight}11)`, border:`1px solid ${G.border}`, borderRadius:10, padding:16, textAlign:"center"}}>
+                    <p style={{color:G.goldLight, fontSize:24, fontWeight:900, fontFamily:"Georgia,serif", margin:"0 0 4px"}}>{x.v}</p>
+                    <p style={{color:G.muted, fontSize:11, margin:0}}>{x.l}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Rodapé com time */}
+          <div style={{background:G.card, border:`1px solid ${G.border}`, borderRadius:14, padding:20}}>
+            <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12}}>
+              <div>
+                <p style={{color:G.gold, fontSize:10, letterSpacing:2, margin:"0 0 6px"}}>TIME</p>
+                <p style={{color:G.white, fontSize:13, margin:0}}>Caroline Garcia Souza · Lívia Campos Peralis · Roberto Buchweitz Avila · Lennyn Semeghini</p>
+                <p style={{color:G.muted, fontSize:11, margin:"4px 0 0"}}>Mentor: Rodrigo Augusto Pereira Zago — Gerente Regional</p>
+              </div>
+              <div style={{textAlign:"right"}}>
+                <p style={{color:G.gold, fontSize:10, letterSpacing:2, margin:"0 0 4px"}}>PROTÓTIPO AO VIVO</p>
+                <p style={{color:G.goldLight, fontSize:12, fontWeight:700, margin:0}}>carogiacomo.github.io/-iqclient</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      );
+
       default: return null;
     }
   };
@@ -912,8 +1254,7 @@ function App() {
   );
 }
 
-ReactDOM.render(<App/>, document.getElementById("root"));
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
 </body>
 </html>
-
