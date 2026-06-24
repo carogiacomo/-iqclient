@@ -1,1 +1,586 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IQ Client — Itaú BBA AI Challenge 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;width:100%;overflow:hidden;background:#0E0C08;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#F5ECD7}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:#0E0C08}
+::-webkit-scrollbar-thumb{background:#3A2E1A;border-radius:4px}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,textarea{font-family:inherit}
+input::placeholder,textarea::placeholder{color:#5A4A2A}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.fade{animation:fadeIn 0.3s ease}
+#app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+#header{border-bottom:1px solid rgba(200,169,110,0.25);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;background:rgba(14,12,8,0.98);flex-shrink:0;z-index:100}
+#logo{display:flex;align-items:center;gap:12px}
+#logo-icon{width:30px;height:30px;background:linear-gradient(135deg,#C8A96E,#E8C87A);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#1A1208}
+#logo-text{color:#F5ECD7;font-family:Georgia,serif;font-size:17px}
+#header-right{color:#7A6A4A;font-size:11px;letter-spacing:2px}
+#body{display:flex;flex:1;overflow:hidden}
+#sidebar{width:185px;border-right:1px solid rgba(200,169,110,0.25);padding:24px 0;flex-shrink:0;background:#0E0C08;overflow-y:auto}
+.nav-btn{width:100%;background:transparent;border-right:2px solid transparent;padding:11px 20px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all 0.2s}
+.nav-btn:hover{background:rgba(200,169,110,0.05)}
+.nav-btn.active{background:rgba(200,169,110,0.08);border-right:2px solid #C8A96E}
+.nav-btn .icon{color:#7A6A4A;font-size:13px}
+.nav-btn.active .icon{color:#C8A96E}
+.nav-btn .label{color:#7A6A4A;font-size:12px}
+.nav-btn.active .label{color:#F5ECD7}
+#sidebar-footer{margin:24px 20px 0;padding-top:20px;border-top:1px solid rgba(200,169,110,0.25)}
+#sidebar-footer p:first-child{color:#7A6A4A;font-size:10px;letter-spacing:1px;margin-bottom:4px}
+#sidebar-footer p:last-child{color:#C8A96E;font-size:13px;font-weight:700}
+#content{flex:1;overflow-y:auto;padding:40px 48px;background:#0E0C08}
+.section{animation:fadeIn 0.3s ease}
+.gold{color:#C8A96E}
+.gold-light{color:#E8C87A}
+.white{color:#F5ECD7}
+.muted{color:#A89878}
+.dim{color:#7A6A4A}
+.card{background:rgba(255,255,255,0.03);border:1px solid rgba(200,169,110,0.25);border-radius:14px;padding:24px}
+.card-left-gold{border-left:4px solid #C8A96E}
+.card-left-light{border-left:4px solid #E8C87A}
+h1.hero{font-family:Georgia,serif;font-weight:400;color:#F5ECD7;font-size:clamp(36px,5vw,56px);margin:12px 0 8px;line-height:1.1}
+h2.section-title{font-family:Georgia,serif;color:#F5ECD7;font-size:32px;font-weight:400;margin:12px 0 32px}
+.tag{background:rgba(200,169,110,0.08);border:1px solid rgba(200,169,110,0.25);color:#C8A96E;padding:4px 12px;border-radius:20px;font-size:11px;display:inline-block;margin:3px}
+.grid-auto{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pillar-card{background:rgba(255,255,255,0.03);border-radius:16px;padding:20px;border-top:3px solid}
+.step-num{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#C8A96E,#E8C87A);display:flex;align-items:center;justify-content:center;color:#1A1208;font-weight:700;font-size:13px;flex-shrink:0}
+.step-line{width:1px;height:48px;background:rgba(200,169,110,0.25);margin:8px 0}
+.team-card{background:rgba(255,255,255,0.03);border:1px solid rgba(200,169,110,0.25);border-radius:14px;padding:28px;border-top:3px solid #C8A96E;text-align:center}
+.team-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#C8A96E,#E8C87A);display:flex;align-items:center;justify-content:center;color:#1A1208;font-weight:700;font-size:16px;margin:0 auto 16px}
+.metric-card{background:rgba(255,255,255,0.03);border:1px solid rgba(200,169,110,0.25);border-radius:14px;padding:28px;text-align:center}
+.metric-val{color:#E8C87A;font-size:38px;font-family:Georgia,serif;margin:0 0 8px;font-weight:400}
+.impact-card{display:flex;gap:16px;background:rgba(255,255,255,0.03);border:1px solid rgba(200,169,110,0.25);border-radius:12px;padding:20px}
+input.cnpj-input{flex:1;min-width:200px;background:rgba(0,0,0,0.4);border:1px solid rgba(200,169,110,0.25);border-radius:8px;padding:12px 16px;color:#F5ECD7;font-size:14px;outline:none}
+.btn-gold{background:linear-gradient(135deg,#C8A96E,#E8C87A);border:none;border-radius:8px;padding:12px 28px;color:#1A1208;font-weight:700;font-size:13px;cursor:pointer;letter-spacing:1px}
+.btn-outline{background:rgba(200,169,110,0.1);border:1px solid rgba(200,169,110,0.25);border-radius:8px;padding:12px 28px;color:#C8A96E;font-weight:700;font-size:13px;cursor:pointer;letter-spacing:1px}
+.error-msg{color:#f87171;font-size:12px;margin-top:10px}
+.loading-box{text-align:center;padding:40px;background:rgba(255,255,255,0.03);border-radius:14px;border:1px solid rgba(200,169,110,0.25)}
+.dossie{background:#0E0C08;border-radius:16px;border:1px solid rgba(200,169,110,0.25);overflow:hidden}
+.dossie-header{background:linear-gradient(135deg,#1A1208,#2E2210);padding:24px 28px;border-bottom:2px solid #C8A96E}
+.dossie-body{padding:28px;display:grid;gap:16px}
+.risk-badge{padding:6px 16px;border-radius:20px;font-size:11px;font-weight:700}
+.fin-grid{display:flex;gap:28px;margin-top:16px;flex-wrap:wrap}
+.fin-item p:first-child{color:#7A6A4A;font-size:9px;letter-spacing:1px;margin:0}
+.fin-item p:last-child{color:#E8C87A;font-size:14px;margin:2px 0 0;font-weight:700}
+.score-ring{position:relative;width:90px;height:90px;flex-shrink:0}
+.bar-bg{flex:1;background:rgba(200,169,110,0.1);border-radius:4px;height:6px}
+.bar-fill{height:6px;background:linear-gradient(90deg,#C8A96E,#E8C87A);border-radius:4px}
+.exec-row{display:flex;align-items:center;gap:16px;background:rgba(0,0,0,0.3);border-radius:10px;padding:14px 18px;border:1px solid rgba(200,169,110,0.25);margin-bottom:8px}
+.exec-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#C8A96E,#E8C87A);display:flex;align-items:center;justify-content:center;color:#1A1208;font-weight:700;font-size:14px;flex-shrink:0}
+.fonte-badge{background:rgba(200,169,110,0.08);border:1px solid rgba(200,169,110,0.25);color:#C8A96E;font-size:10px;padding:4px 12px;border-radius:10px;white-space:nowrap}
+.inst-row{display:grid;grid-template-columns:1fr 1fr auto auto;gap:10px;align-items:center;background:rgba(0,0,0,0.3);border-radius:10px;padding:12px 16px;border:1px solid rgba(200,169,110,0.25);margin-bottom:6px}
+.prazo-badge{background:rgba(200,169,110,0.1);color:#C8A96E;font-size:10px;padding:2px 10px;border-radius:10px;white-space:nowrap}
+.perfil-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.perfil-item{background:rgba(0,0,0,0.3);border-radius:10px;padding:14px;border:1px solid rgba(200,169,110,0.25)}
+.hab-row{display:flex;gap:16px;align-items:flex-start;margin-bottom:10px}
+.hab-label{color:#C8A96E;font-size:13px;font-weight:700;min-width:130px;flex-shrink:0}
+.tag-produto{background:rgba(200,169,110,0.1);border:1px solid rgba(200,169,110,0.25);color:#E8C87A;padding:5px 14px;border-radius:12px;font-size:13px;font-weight:600;display:inline-block;margin:2px}
+.op-row{display:flex;gap:12px;margin-bottom:12px;align-items:flex-start}
+.pauta-row{display:flex;gap:12px;margin-bottom:12px}
+.gatilho-row{display:flex;align-items:flex-start;gap:16px;background:rgba(0,0,0,0.3);border-radius:10px;padding:14px 18px;border:1px solid rgba(200,169,110,0.25);margin-bottom:8px}
+.urgencia-alta{background:rgba(239,68,68,0.15);border:1px solid #ef4444;color:#ef4444;font-size:10px;padding:2px 10px;border-radius:10px;font-weight:700}
+.urgencia-media{background:rgba(251,191,36,0.15);border:1px solid #fbbf24;color:#fbbf24;font-size:10px;padding:2px 10px;border-radius:10px;font-weight:700}
+.comp-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:center;background:rgba(0,0,0,0.3);border-radius:10px;padding:12px 16px;border:1px solid rgba(200,169,110,0.25);margin-bottom:8px}
+.insight-box{background:rgba(129,140,248,0.08);border:1px solid rgba(129,140,248,0.3);border-radius:10px;padding:14px 18px}
+.rodape-dossie{background:rgba(255,255,255,0.03);border:1px solid rgba(200,169,110,0.25);border-radius:10px;padding:14px 20px;text-align:center}
+.pvtp-block{border-radius:14px;padding:24px;margin-bottom:16px}
+.pvtp-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.pvtp-letter{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;flex-shrink:0}
+.base-item{display:flex;gap:10px;align-items:flex-start;background:rgba(200,169,110,0.05);border-radius:8px;padding:8px 12px;margin-bottom:6px}
+.pedido-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px}
+.pedido-metric{background:rgba(200,169,110,0.08);border:1px solid rgba(200,169,110,0.25);border-radius:10px;padding:16px;text-align:center}
+.ranking-row{background:rgba(255,255,255,0.03);border:1px solid rgba(200,169,110,0.25);border-radius:12px;padding:18px 22px;cursor:pointer;transition:border 0.2s;margin-bottom:8px}
+.ranking-row:hover{border-color:#C8A96E}
+.ranking-expanded{background:rgba(0,0,0,0.4);border:1px solid rgba(200,169,110,0.25);border-top:none;border-radius:0 0 12px 12px;padding:20px 22px;margin-top:-8px;margin-bottom:8px}
+.progress-bar{background:rgba(200,169,110,0.1);border-radius:8px;height:8px;margin-bottom:12px}
+.progress-fill{height:8px;background:linear-gradient(90deg,#C8A96E,#E8C87A);border-radius:8px;transition:width 0.5s}
+.file-upload-label{background:rgba(200,169,110,0.1);border:1px solid rgba(200,169,110,0.25);color:#C8A96E;padding:8px 16px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600}
+textarea.cnpj-area{width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(200,169,110,0.25);border-radius:10px;padding:14px 16px;color:#F5ECD7;font-size:13px;outline:none;resize:vertical;font-family:monospace;line-height:1.8}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <div id="logo">
+      <div id="logo-icon">◈</div>
+      <span id="logo-text">IQ Client</span>
+    </div>
+    <span id="header-right">ITAÚ BBA — AI CHALLENGE 2026</span>
+  </div>
+  <div id="body">
+    <div id="sidebar">
+      <button class="nav-btn active" onclick="showSection('apresentacao')"><span class="icon">★</span><span class="label">🎯 Pitch Banca</span></button>
+      <button class="nav-btn" onclick="showSection('overview')"><span class="icon">◈</span><span class="label">Visão Geral</span></button>
+      <button class="nav-btn" onclick="showSection('problem')"><span class="icon">⊗</span><span class="label">Problema</span></button>
+      <button class="nav-btn" onclick="showSection('solution')"><span class="icon">⊕</span><span class="label">Solução</span></button>
+      <button class="nav-btn" onclick="showSection('prototype')"><span class="icon">◎</span><span class="label">Protótipo</span></button>
+      <button class="nav-btn" onclick="showSection('importacao')"><span class="icon">⊞</span><span class="label">Importar Base</span></button>
+      <button class="nav-btn" onclick="showSection('team')"><span class="icon">◉</span><span class="label">Time</span></button>
+      <button class="nav-btn" onclick="showSection('impact')"><span class="icon">◆</span><span class="label">Impacto</span></button>
+      <div id="sidebar-footer">
+        <p>APRESENTAÇÃO</p>
+        <p>AI Challenge 2026</p>
+      </div>
+    </div>
+    <div id="content">
+      <div id="section-apresentacao" class="section"></div>
+      <div id="section-overview" class="section" style="display:none"></div>
+      <div id="section-problem" class="section" style="display:none"></div>
+      <div id="section-solution" class="section" style="display:none"></div>
+      <div id="section-prototype" class="section" style="display:none"></div>
+      <div id="section-importacao" class="section" style="display:none"></div>
+      <div id="section-team" class="section" style="display:none"></div>
+      <div id="section-impact" class="section" style="display:none"></div>
+    </div>
+  </div>
+</div>
 
+<script>
+const G = {
+  gold:'#C8A96E', goldLight:'#E8C87A', white:'#F5ECD7',
+  muted:'#A89878', dim:'#7A6A4A', border:'rgba(200,169,110,0.25)',
+  card:'rgba(255,255,255,0.03)'
+};
+
+const demoData = {
+  "12.345.678/0001-99": {
+    empresa:"Agrícola Pioneira S.A.", setor:"Soja & Milho — Paraná",
+    faturamento:"R$ 480M (2024)", patrimonio:"R$ 320M",
+    endividamento:"28% do PL", ratingInterno:"AA",
+    status:"Cliente Ativo — Carteira Agro Londrina",
+    risco:"Baixo",
+    noticia:"Empresa expandiu área plantada em 18% na safra 24/25 e estuda financiamento para nova silo.",
+    scoreOportunidade:{total:87, classificacao:"🔥 Cliente Quente",
+      fatores:[{label:"Saúde Financeira",valor:95},{label:"Momento da Empresa",valor:90},{label:"Espaço para Novo Crédito",valor:80},{label:"Relacionamento BBA",valor:85},{label:"Timing de Mercado",valor:85}]},
+    timingAcao:{nivel:"AGORA", cor:"#16a34a",
+      mensagem:"Safra 24/25 encerrada com resultado recorde. Caixa positivo e empresa avaliando expansão de infraestrutura. Janela ideal para proposta de CPR ampliada.",
+      acaoSugerida:"Agendar visita presencial na fazenda nos próximos 15 dias.",
+      gatilho:"Expansão de 18% na área plantada + CRA com vencimento em 12/2027 abrindo espaço para nova operação."},
+    executivos:[{cargo:"CEO / Sócio-fundador",nome:"João Carlos Mendonça",fonte:"Valor Econômico"},{cargo:"CFO",nome:"Renata Souza Pires",fonte:"LinkedIn público"},{cargo:"Dir. Operações Agro",nome:"Marcos Teixeira Filho",fonte:"Anuário Agronegócio PR"}],
+    perfil:{tomadorDecisao:"CFO Renata Pires + Sócio-fundador João Mendonça",estiloComunicacao:"Objetivo, prefere dados e planilhas. Reuniões curtas e presenciais.",relacionamentoBBA:"6 anos de carteira. Alto engajamento.",momentoEmpresa:"Expansão — safra recorde, avaliando financiamento de infraestrutura."},
+    habitos:{produtosUsados:["CPR Financeira","Conta Corrente PJ","Câmbio Spot"],frequenciaContato:"Mensal — visita trimestral presencial",canalPreferido:"WhatsApp + reunião presencial na fazenda",sensibilidade:"Preço de câmbio e prazo de carência",comportamento:"Compara taxas com BB e Bradesco antes de fechar."},
+    exposicaoMercado:{totalSCR:"R$ 134M",espacoEstimado:"~R$ 60–80M disponível para novo crédito",scoreBureau:"980/1000 — Risco Baixíssimo",restricoes:"Nenhuma restrição ativa",
+      instituicoes:[{banco:"Banco do Brasil",tipo:"Crédito Rural / CPR",volume:"R$ 80M",prazo:"Longo prazo"},{banco:"Bradesco",tipo:"Capital de Giro",volume:"R$ 32M",prazo:"12 meses"},{banco:"Itaú BBA",tipo:"CPR Financeira + Câmbio",volume:"R$ 22M",prazo:"Safra"}],
+      titulosPublicos:["CPR registrada B3 — R$ 45M (venc. 03/2026)","CRA Embrapa Agro — R$ 20M (venc. 12/2027)"]},
+    gatilhos:[{icone:"🌾",tipo:"Safra Recorde",urgencia:"Alta",descricao:"Safra 24/25 encerrada com expansão de 18% na área plantada — caixa positivo e momento de reinvestimento."},{icone:"🏗️",tipo:"Expansão de Infraestrutura",urgencia:"Alta",descricao:"Empresa avaliando construção de novo silo — demanda por financiamento de longo prazo."},{icone:"📅",tipo:"Vencimento de CRA",urgencia:"Média",descricao:"CRA Embrapa Agro vence em 12/2027 — janela para proposta de nova operação."}],
+    comparativoSetorial:{setor:"Grandes Produtores de Grãos — Paraná",posicao:"Top 15% do setor",
+      dados:[{indicador:"Faturamento",empresa:"R$ 480M",media:"R$ 310M",status:"acima"},{indicador:"Endividamento",empresa:"28% do PL",media:"41% do PL",status:"acima"},{indicador:"Crescimento Área",empresa:"+18%",media:"+7%",status:"acima"},{indicador:"Produtos BBA",empresa:"3 produtos",media:"4.2 produtos",status:"abaixo"}],
+      insight:"Cliente com saúde financeira acima da média do setor. Oportunidade de aumentar share of wallet — média do setor usa 4.2 produtos BBA, cliente usa apenas 3."},
+    oportunidades:["CPR Financeira — ampliação de limite","Seguro Agrícola","Câmbio Exportação — NDF"],
+    pauta:["Renovação da linha de crédito","Proposta de hedge cambial","Cross-sell: seguro de produção"]
+  },
+  "98.765.432/0001-11": {
+    empresa:"TechGrain Agro Ltda.", setor:"Insumos & Tecnologia Agrícola",
+    faturamento:"R$ 210M (2024)", patrimonio:"R$ 180M",
+    endividamento:"15% do PL", ratingInterno:"A+",
+    status:"Prospect — Nunca foi abordado",
+    risco:"Médio",
+    noticia:"Recebeu aporte de R$ 50M em rodada Series B em março/2026. Busca banco para estruturar conta corrente corporativa.",
+    scoreOportunidade:{total:94, classificacao:"🚀 Prospect Prioritário",
+      fatores:[{label:"Saúde Financeira",valor:90},{label:"Momento da Empresa",valor:99},{label:"Espaço para Novo Crédito",valor:98},{label:"Relacionamento BBA",valor:70},{label:"Timing de Mercado",valor:95}]},
+    timingAcao:{nivel:"URGENTE", cor:"#dc2626",
+      mensagem:"Empresa recebeu aporte de R$ 50M em março/2026 e está estruturando banking corporativo. Subbancarizada em fintechs. BTG e XP já estão no radar.",
+      acaoSugerida:"Contato via LinkedIn com CEO Felipe Aragão esta semana. Janela aberta agora.",
+      gatilho:"Aporte Series B em 03/2026 + ausência de banco de atacado na carteira = oportunidade única."},
+    executivos:[{cargo:"CEO & Co-fundador",nome:"Felipe Aragão",fonte:"Crunchbase"},{cargo:"CFO",nome:"Isabela Drummond",fonte:"LinkedIn público"},{cargo:"CTO",nome:"Lucas Viana",fonte:"LinkedIn público"}],
+    perfil:{tomadorDecisao:"CEO Felipe Aragão + CFO Isabela Drummond",estiloComunicacao:"Digital-first. Valoriza inovação e velocidade. Reuniões por vídeo ou presencial em SP.",relacionamentoBBA:"Sem histórico. Prospect via radar de aportes Series B.",momentoEmpresa:"Alto crescimento pós-aporte. Necessita estruturar banking corporativo."},
+    habitos:{produtosUsados:["Conta PJ Fintech","Cartão Corporativo","PIX em massa"],frequenciaContato:"Nenhuma — primeiro contato",canalPreferido:"LinkedIn + e-mail executivo + reunião em SP",sensibilidade:"Experiência digital, integração via API, agilidade no onboarding",comportamento:"Perfil tech — compara com BTG e XP."},
+    exposicaoMercado:{totalSCR:"R$ 31M",espacoEstimado:"~R$ 80–120M disponível — empresa subbancarizada para seu porte",scoreBureau:"860/1000 — Risco Baixo",restricoes:"Nenhuma restrição ativa",
+      instituicoes:[{banco:"Nubank PJ",tipo:"Conta Corrente + Cartão",volume:"R$ 8M",prazo:"Rotativo"},{banco:"BTG Pactual",tipo:"Capital de Giro",volume:"R$ 15M",prazo:"18 meses"},{banco:"Santander",tipo:"FX / Importação",volume:"R$ 8M",prazo:"Spot"}],
+      titulosPublicos:["Debênture privada Series B — R$ 50M (aporte 03/2026)"]},
+    gatilhos:[{icone:"💰",tipo:"Aporte Series B",urgencia:"Alta",descricao:"Recebeu R$ 50M em março/2026 — empresa em fase de estruturação bancária corporativa."},{icone:"🏦",tipo:"Subbancarizada",urgencia:"Alta",descricao:"Opera com fintechs sem banco de atacado estruturado — gap claro para o BBA entrar."},{icone:"👔",tipo:"Expansão do Time Financeiro",urgencia:"Alta",descricao:"Empresa contratando CFO sênior — revisão total da estrutura bancária em andamento."}],
+    comparativoSetorial:{setor:"Agrotechs & Fintechs Agro — Brasil",posicao:"Top 20% do setor",
+      dados:[{indicador:"Faturamento",empresa:"R$ 210M",media:"R$ 145M",status:"acima"},{indicador:"Endividamento",empresa:"15% do PL",media:"28% do PL",status:"acima"},{indicador:"Crescimento",empresa:"+35% a.a.",media:"+18% a.a.",status:"acima"},{indicador:"Produtos BBA",empresa:"0 produtos",media:"2.8 produtos",status:"abaixo"}],
+      insight:"Empresa com crescimento acima da média do setor e endividamento saudável. Completamente sem relacionamento BBA — maior oportunidade de entrada do portfólio."},
+    oportunidades:["Conta PJ Atacado + Cash Management","FGI / Antecipação de Recebíveis","FX para importação de insumos"],
+    pauta:["Apresentar plataforma BBA","Entender necessidades pós-aporte","Propor estrutura de cash management"]
+  }
+};
+
+function riskColor(r){return r==="Baixo"?"#4ade80":r==="Médio"?"#fbbf24":"#f87171"}
+function scoreColor(s){return s>=80?G.gold:s>=60?"#fbbf24":G.muted}
+function initials(name){return name.split(" ").slice(0,2).map(w=>w[0]).join("")}
+function parseCNPJ(c){const d=c.replace(/\D/g,"");return d.length===14?`${d.slice(0,2)}.${d.slice(2,5)}.${d.slice(5,8)}/${d.slice(8,12)}-${d.slice(12)}`:c}
+
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.style.display='none');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('section-'+id).style.display='block';
+  document.querySelector(`[onclick="showSection('${id}')"]`).classList.add('active');
+  renderSection(id);
+}
+
+function renderSection(id){
+  const el=document.getElementById('section-'+id);
+  if(el.dataset.rendered) return;
+  el.dataset.rendered='1';
+  if(id==='apresentacao') renderApresentacao(el);
+  else if(id==='overview') renderOverview(el);
+  else if(id==='problem') renderProblem(el);
+  else if(id==='solution') renderSolution(el);
+  else if(id==='prototype') renderPrototype(el);
+  else if(id==='importacao') renderImportacao(el);
+  else if(id==='team') renderTeam(el);
+  else if(id==='impact') renderImpact(el);
+}
+
+function renderApresentacao(el){
+  el.innerHTML=`
+  <div style="text-align:center;margin-bottom:36px">
+    <div style="display:inline-block;background:linear-gradient(135deg,#C8A96E,#E8C87A);border-radius:16px;padding:8px 24px;margin-bottom:16px">
+      <span style="color:#1A1208;font-size:12px;font-weight:700;letter-spacing:3px">AI CHALLENGE CB + INFRA & ENERGIA 2026</span>
+    </div>
+    <h1 style="font-family:Georgia,serif;color:#F5ECD7;font-size:clamp(40px,6vw,72px);font-weight:400;margin:0 0 8px;line-height:1.1">IQ Client</h1>
+    <p style="color:#C8A96E;font-size:20px;font-style:italic;margin:0 0 8px">Inteligência de Cliente, na palma do Banker.</p>
+    <p style="color:#7A6A4A;font-size:14px">carogiacomo.github.io/-iqclient</p>
+  </div>
+  <div class="pvtp-block" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.4);border-left:5px solid #ef4444">
+    <div class="pvtp-header"><div class="pvtp-letter" style="background:#ef4444;color:#fff">P</div><div><p style="color:#ef4444;font-size:13px;font-weight:700;letter-spacing:2px;margin:0">PROBLEMA</p><p style="color:#7A6A4A;font-size:11px;margin:0">20 segundos</p></div></div>
+    <p style="color:#F5ECD7;font-size:15px;line-height:1.8;margin:0;font-style:italic">"Da ponta comercial até a diretoria, o desafio é o mesmo: dados espalhados, análises manuais e sistemas desconectados. Hoje, montar uma prospecção ou avaliar um cliente pode levar até 3 horas — tempo que custa caro. O reflexo é direto: oportunidades que escapam e decisões que perdem velocidade e precisão."</p>
+  </div>
+  <div class="pvtp-block" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.4);border-left:5px solid #f59e0b">
+    <div class="pvtp-header"><div class="pvtp-letter" style="background:#f59e0b;color:#1A1208">V</div><div><p style="color:#f59e0b;font-size:13px;font-weight:700;letter-spacing:2px;margin:0">VOLUME</p><p style="color:#7A6A4A;font-size:11px;margin:0">20 segundos</p></div></div>
+    <p style="color:#F5ECD7;font-size:15px;line-height:1.8;margin:0;font-style:italic">"Em cada segmento do BBA — CB, Atacado, Agro, Middle, Infra & Energia — o custo invisível da preparação manual representa um volume expressivo de horas desperdiçadas todo mês. Horas que poderiam gerar negócios estão sendo usadas para garimpar dados."</p>
+  </div>
+  <div class="pvtp-block" style="background:rgba(200,169,110,0.08);border:1px solid rgba(200,169,110,0.25);border-left:5px solid #C8A96E">
+    <div class="pvtp-header"><div class="pvtp-letter" style="background:linear-gradient(135deg,#C8A96E,#E8C87A);color:#1A1208">T</div><div><p style="color:#C8A96E;font-size:13px;font-weight:700;letter-spacing:2px;margin:0">TESE DE IA</p><p style="color:#7A6A4A;font-size:11px;margin:0">40 segundos</p></div></div>
+    <p style="color:#F5ECD7;font-size:15px;line-height:1.8;margin:0 0 16px;font-style:italic">"O IQ Client resenvolvemos o IQ Client — inteligência artificial aplicada a uma dor real, com foco direto em gerar mais negócios, trazendo consistência, escala e velocidade para a inteligência comercial. A partir de um único CPF ou CNPJ, utiliza IA generativa para entregar, em menos de 2 minutos, um dossiê comercial completo — com visão do cliente, exposição no SFN, score de oportunidade, recomendação de abordagem, comparativo setorial e identificação dos decisores. O diferencial estratégico: protótipo compatível com o M365 Copilot, sem custo adicional de licenciamento, pronto para escalabilidade e viabilizando ganho imediato de produtividade."</p>
+    <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:16px;border:1px solid rgba(200,169,110,0.25)">
+      <p style="color:#C8A96E;font-size:11px;font-weight:700;letter-spacing:2px;margin:0 0 12px">🔗 BASES SUGERIDAS PARA INTEGRAÇÃO COM O TI</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        ${[{i:"🏦",n:"Banco Central — SCR",d:"Exposição no sistema financeiro"},{i:"📋",n:"CVM",d:"Títulos públicos, CRA, CRI, Debêntures"},{i:"🏛️",n:"Receita Federal / SPED",d:"Faturamento e dados financeiros"},{i:"📊",n:"Serasa / Boa Vista",d:"Score de crédito e restrições"},{i:"🌾",n:"IBGE / EMBRAPA",d:"Dados do agronegócio e safras"},{i:"🔵",n:"Microsoft Graph API",d:"CRM e base interna BBA via M365"},{i:"📰",n:"Valor Econômico / Globo Rural",d:"Radar do setor e notícias"},{i:"💻",n:"M365 Copilot Studio",d:"Infraestrutura já licenciada pelo Itaú"}].map(b=>`
+        <div class="base-item"><span style="font-size:16px;flex-shrink:0">${b.i}</span><div><p style="color:#F5ECD7;font-size:12px;font-weight:700;margin:0">${b.n}</p><p style="color:#A89878;font-size:11px;margin:0">${b.d}</p></div></div>`).join('')}
+      </div>
+    </div>
+  </div>
+  <div class="pvtp-block" style="background:rgba(129,140,248,0.08);border:1px solid rgba(129,140,248,0.4);border-left:5px solid #818cf8">
+    <div class="pvtp-header"><div class="pvtp-letter" style="background:#818cf8;color:#fff">P</div><div><p style="color:#818cf8;font-size:13px;font-weight:700;letter-spacing:2px;margin:0">PEDIDO</p><p style="color:#7A6A4A;font-size:11px;margin:0">20 segundos</p></div></div>
+    <p style="color:#F5ECD7;font-size:15px;line-height:1.8;margin:0 0 16px;font-style:italic">"O IQ Client está pronto — inteligência artificial aplicada a uma dor real, para fazer mais negócios. No comercial, tempo é a commodity mais disputada com a concorrência. Agilidade é assertividade. Assertividade é negócio fechado."</p>
+    <div class="pedido-metrics">
+      ${[{v:"30 dias",l:"Piloto CB"},{v:"90 dias",l:"Expansão BBA"},{v:"R$0",l:"Custo de licença"}].map(x=>`<div class="pedido-metric"><p style="color:#E8C87A;font-size:24px;font-weight:900;font-family:Georgia,serif;margin:0 0 4px">${x.v}</p><p style="color:#A89878;font-size:11px;margin:0">${x.l}</p></div>`).join('')}
+    </div>
+  </div>
+  <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(200,169,110,0.25);border-radius:14px;padding:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+    <div><p style="color:#C8A96E;font-size:10px;letter-spacing:2px;margin:0 0 6px">TIME</p><p style="color:#F5ECD7;font-size:13px;margin:0">Caroline Garcia Souza · Lívia Campos Peralis · Roberto Buchweitz Avila · Lennyn Semeghini</p><p style="color:#A89878;font-size:11px;margin:4px 0 0">Mentor: Rodrigo Augusto Pereira Zago — Gerente Regional Itaú BBA</p></div>
+    <div style="text-align:right"><p style="color:#C8A96E;font-size:10px;letter-spacing:2px;margin:0 0 4px">PROTÓTIPO AO VIVO</p><p style="color:#E8C87A;font-size:12px;font-weight:700;margin:0">carogiacomo.github.io/-iqclient</p></div>
+  </div>`;
+}
+
+function renderOverview(el){
+  el.innerHTML=`
+  <div style="margin-bottom:40px">
+    <span style="color:#C8A96E;font-size:11px;letter-spacing:3px">AI CHALLENGE — ITAÚ BBA 2026</span>
+    <h1 class="hero">IQ Client</h1>
+    <p style="font-size:18px;color:#C8A96E;font-style:italic;margin:0 0 24px">Inteligência de Cliente, na palma do Banker.</p>
+    <p style="color:#A89878;font-size:15px;line-height:1.8;max-width:620px">Uma plataforma de IA que gera dossiês comerciais completos — score de oportunidade, gatilhos automáticos, comparativo setorial, perfil dos decisores e pauta sugerida — em menos de 2 minutos.</p>
+  </div>
+  <div class="grid-auto">
+    ${[{i:"📋",t:"Briefing Pré-Visita",d:"Dossiê completo gerado automaticamente a partir do CNPJ.",c:"#C8A96E"},{i:"⭐",t:"Score de Oportunidade",d:"Índice 0–100 cruzando saúde financeira, momento e timing.",c:"#E8C87A"},{i:"🎯",t:"Gatilhos Automáticos",d:"Eventos que indicam que a empresa está madura para abordagem.",c:"#f59e0b"},{i:"📊",t:"Comparativo Setorial",d:"Como o cliente se posiciona vs. média dos concorrentes.",c:"#818cf8"},{i:"⏰",t:"Timing de Ação",d:"AGORA, URGENTE ou AGUARDAR — com ação sugerida.",c:"#C8A96E"},{i:"👤",t:"Perfil dos Decisores",d:"CEO, CFO e outros executivos-chave com fonte de dados.",c:"#E8C87A"},{i:"🏦",t:"Exposição no Mercado",d:"SCR, bancos concorrentes e espaço para novo crédito.",c:"#C8A96E"}].map(p=>`
+    <div class="pillar-card" style="border-color:${p.c}44;border-top-color:${p.c}"><div style="font-size:24px;margin-bottom:10px">${p.i}</div><h3 style="color:${p.c};font-size:14px;margin:0 0 8px;font-family:Georgia,serif">${p.t}</h3><p style="color:#A89878;font-size:12px;line-height:1.6;margin:0">${p.d}</p></div>`).join('')}
+  </div>`;
+}
+
+function renderProblem(el){
+  el.innerHTML=`
+  <span style="color:#C8A96E;font-size:11px;letter-spacing:3px">O PROBLEMA</span>
+  <h2 class="section-title">O Banker chega na visita sem munição.</h2>
+  <div style="display:grid;gap:16px">
+    ${[{l:"Prep manual demorada",d:"Bankers gastam entre 1h e 3h coletando informações dispersas antes de cada visita — em sites, e-mails, sistemas internos e planilhas."},{l:"Informação fragmentada",d:"Dados estão espalhados em múltiplos sistemas: Boletador 360, Portal de Garantias, Bankline, CRM e fontes externas."},{l:"Prospecção no escuro",d:"Identificar novos leads depende do feeling individual do banker — sem apoio de dados estruturados."},{l:"Timing perdido",d:"Mudanças no setor do cliente chegam ao banker depois que a concorrência já agiu."}].map((x,i)=>`
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:20px;background:rgba(255,255,255,0.03);border:1px solid rgba(200,169,110,0.25);border-radius:12px;padding:24px">
+      <div style="width:40px;height:40px;border-radius:50%;background:rgba(200,169,110,0.1);border:1px solid rgba(200,169,110,0.25);display:flex;align-items:center;justify-content:center;color:#C8A96E;font-size:14px;font-weight:700;flex-shrink:0">${i+1}</div>
+      <div><h3 style="color:#F5ECD7;font-size:15px;margin:0 0 8px">${x.l}</h3><p style="color:#A89878;font-size:13px;line-height:1.6;margin:0">${x.d}</p></div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function renderSolution(el){
+  el.innerHTML=`
+  <span style="color:#C8A96E;font-size:11px;letter-spacing:3px">A SOLUÇÃO</span>
+  <h2 class="section-title">IQ Client — Como Funciona</h2>
+  <p style="color:#A89878;font-size:14px;margin:0 0 36px">Do CNPJ ao dossiê completo em menos de 2 minutos.</p>
+  ${[{n:"01",t:"Input do Banker",d:"Banker insere CNPJ ou nome do cliente na plataforma IQ Client."},{n:"02",t:"Coleta Automatizada",d:"IA busca dados em: CVM, IBGE, SCR, bureaus de crédito, notícias do setor e base interna BBA."},{n:"03",t:"Síntese Inteligente",d:"LLM organiza as informações, calcula o Score de Oportunidade, identifica Gatilhos e gera o Comparativo Setorial."},{n:"04",t:"Entrega do Dossiê",d:"Banker recebe o briefing completo com ação sugerida em destaque — direto no Teams via M365 Copilot."}].map((s,i,arr)=>`
+  <div style="display:flex;gap:24px;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <div class="step-num">${s.n}</div>
+      ${i<arr.length-1?'<div class="step-line"></div>':''}
+    </div>
+    <div style="padding-bottom:32px"><h3 style="color:#F5ECD7;font-size:16px;margin:10px 0 8px">${s.t}</h3><p style="color:#A89878;font-size:13px;line-height:1.6;margin:0">${s.d}</p></div>
+  </div>`).join('')}
+  <div style="margin-top:16px;background:rgba(255,255,255,0.03);border:1px solid rgba(200,169,110,0.25);border-radius:12px;padding:24px">
+    <p style="color:#C8A96E;font-size:11px;letter-spacing:2px;margin:0 0 12px">TECNOLOGIAS & INTEGRAÇÃO M365 COPILOT</p>
+    <div>${["M365 Copilot Studio","Microsoft Teams","LLM (Claude / GPT-4)","APIs Públicas (CVM, IBGE, SCR)","Bureaus de Crédito","SharePoint + Graph API"].map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+  </div>`;
+}
+
+function renderPrototype(el){
+  el.innerHTML=`
+  <span style="color:#C8A96E;font-size:11px;letter-spacing:3px">PROTÓTIPO INTERATIVO</span>
+  <h2 class="section-title" style="margin-bottom:8px">Experimente o IQ Client</h2>
+  <p style="color:#A89878;font-size:14px;margin:0 0 12px">Digite um CNPJ e veja o dossiê completo gerado em segundos.</p>
+  <div style="margin-bottom:24px">${["⭐ Score","⏰ Timing de Ação","🎯 Gatilhos","📊 Comparativo Setorial","📰 Setor","👤 CEO/CFO","🏦 Mercado","💰 Financeiro","🧠 Perfil","🛒 Hábitos","💡 Oportunidades","📌 Pauta"].map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+  <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(200,169,110,0.25);border-radius:14px;padding:24px;margin-bottom:20px">
+    <p style="color:#C8A96E;font-size:11px;letter-spacing:2px;font-weight:700;margin:0 0 14px">◈ DEMO — INSIRA O CNPJ DO CLIENTE</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <input class="cnpj-input" id="cnpj-input" placeholder="Ex: 12.345.678/0001-99" onkeydown="if(event.key==='Enter')gerarBriefing()"/>
+      <button class="btn-gold" onclick="gerarBriefing()">GERAR BRIEFING</button>
+    </div>
+    <p id="cnpj-error" style="display:none" class="error-msg"></p>
+  </div>
+  <div id="loading-box" style="display:none" class="loading-box">
+    <p style="color:#C8A96E;font-size:14px;letter-spacing:2px;font-weight:700;margin:0;animation:pulse 1s infinite">⟳ IQ CLIENT PROCESSANDO...</p>
+    <p style="color:#A89878;font-size:12px;margin-top:8px">Buscando dados em 12 fontes simultâneas</p>
+  </div>
+  <div id="dossie-container"></div>`;
+}
+
+function gerarBriefing(){
+  const input=document.getElementById('cnpj-input');
+  const error=document.getElementById('cnpj-error');
+  const loading=document.getElementById('loading-box');
+  const container=document.getElementById('dossie-container');
+  error.style.display='none';
+  container.innerHTML='';
+  const fmt=parseCNPJ(input.value.trim());
+  if(!demoData[fmt]){error.textContent='CNPJ não encontrado. Tente: 12.345.678/0001-99 ou 98.765.432/0001-11';error.style.display='block';return}
+  loading.style.display='block';
+  setTimeout(()=>{loading.style.display='none';container.innerHTML=renderDossie(demoData[fmt])},1800);
+}
+
+function renderDossie(d){
+  const rc=riskColor(d.risco);
+  return `<div class="dossie">
+  <div class="dossie-header">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+      <div><p style="color:#C8A96E;font-size:10px;letter-spacing:3px;margin:0 0 6px">◈ DOSSIÊ IQ CLIENT</p><h3 style="color:#F5ECD7;font-size:22px;margin:0;font-family:Georgia,serif">${d.empresa}</h3><p style="color:#A89878;font-size:13px;margin:4px 0 0">${d.setor}</p></div>
+      <span class="risk-badge" style="background:${rc}22;border:1px solid ${rc};color:${rc}">RISCO ${d.risco.toUpperCase()}</span>
+    </div>
+    <div class="fin-grid">
+      ${[{l:"FATURAMENTO",v:d.faturamento},{l:"PATRIMÔNIO",v:d.patrimonio},{l:"ENDIVIDAMENTO",v:d.endividamento},{l:"RATING BBA",v:d.ratingInterno}].map(x=>`<div class="fin-item"><p>${x.l}</p><p>${x.v}</p></div>`).join('')}
+      <div class="fin-item"><p>STATUS BBA</p><p style="color:#F5ECD7;font-size:13px">${d.status}</p></div>
+    </div>
+  </div>
+  <div class="dossie-body">
+    <div class="grid-2">
+      <div class="card">
+        <p style="color:#C8A96E;font-size:12px;letter-spacing:2px;font-weight:700;margin:0 0 14px">⭐ SCORE DE OPORTUNIDADE</p>
+        <div style="display:flex;align-items:center;gap:20px">
+          <div class="score-ring">
+            <svg width="90" height="90" viewBox="0 0 90 90">
+              <circle cx="45" cy="45" r="38" fill="none" stroke="rgba(200,169,110,0.15)" stroke-width="9"/>
+              <circle cx="45" cy="45" r="38" fill="none" stroke="#C8A96E" stroke-width="9" stroke-dasharray="${d.scoreOportunidade.total*2.388} 238.8" stroke-linecap="round" transform="rotate(-90 45 45)"/>
+            </svg>
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
+              <p style="color:#E8C87A;font-size:26px;font-weight:900;margin:0;line-height:1">${d.scoreOportunidade.total}</p>
+              <p style="color:#7A6A4A;font-size:10px;margin:0">/100</p>
+            </div>
+          </div>
+          <div style="flex:1">
+            <p style="color:#E8C87A;font-size:15px;font-weight:700;margin:0 0 10px">${d.scoreOportunidade.classificacao}</p>
+            ${d.scoreOportunidade.fatores.map(f=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="color:#A89878;font-size:11px;min-width:140px">${f.label}</span><div class="bar-bg"><div class="bar-fill" style="width:${f.valor}%"></div></div><span style="color:#C8A96E;font-size:11px;font-weight:700;min-width:24px;text-align:right">${f.valor}</span></div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid ${d.timingAcao.cor}55;border-radius:14px;padding:24px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="background:${d.timingAcao.cor};color:#fff;font-size:11px;font-weight:900;padding:4px 14px;border-radius:20px;letter-spacing:2px">⏰ ${d.timingAcao.nivel}</span>
+          <p style="color:#C8A96E;font-size:12px;letter-spacing:2px;font-weight:700;margin:0">TIMING DE AÇÃO</p>
+        </div>
+        <p style="color:#F5ECD7;font-size:14px;line-height:1.7;margin:0 0 12px">${d.timingAcao.mensagem}</p>
+        <div style="background:rgba(200,169,110,0.06);border:1px solid rgba(200,169,110,0.25);border-radius:10px;padding:10px 14px;margin-bottom:10px">
+          <p style="color:#C8A96E;font-size:11px;font-weight:700;letter-spacing:1px;margin:0 0 4px">🎯 GATILHO</p>
+          <p style="color:#A89878;font-size:13px;margin:0;line-height:1.6">${d.timingAcao.gatilho}</p>
+        </div>
+        <div style="background:linear-gradient(135deg,#C8A96E,#E8C87A);border-radius:10px;padding:10px 14px">
+          <p style="color:#1A1208;font-size:13px;font-weight:700;margin:0">👉 ${d.timingAcao.acaoSugerida}</p>
+        </div>
+      </div>
+    </div>
+    <div class="card card-left-gold"><p style="color:#C8A96E;font-size:12px;letter-spacing:2px;font-weight:700;margin:0 0 10px">🎯 GATILHOS AUTOMÁTICOS DE PROSPECÇÃO</p>${d.gatilhos.map(g=>`<div class="gatilho-row"><span style="font-size:22px;flex-shrink:0">${g.icone}</span><div style="flex:1"><div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap"><p style="color:#F5ECD7;font-size:14px;font-weight:700;margin:0">${g.tipo}</p><span class="${g.urgencia==='Alta'?'urgencia-alta':'urgencia-media'}">${g.urgencia==='Alta'?'🔴 URGÊNCIA ALTA':'🟡 URGÊNCIA MÉDIA'}</span></div><p style="color:#A89878;font-size:13px;margin:0;line-height:1.6">${g.descricao}</p></div></div>`).join('')}</div>
+    <div class="card card-left-gold"><p style="color:#C8A96E;font-size:12px;letter-spacing:2px;font-weight:700;margin:0 0 10px">📰 RADAR DO SETOR</p><p style="color:#F5ECD7;font-size:15px;margin:0;line-height:1.8">${d.noticia}</p></div>
+    <div class="card card-left-light"><p style="color:#C8A96E;font-size:12px;letter-spacing:2px;font-weight:700;margin:0 0 14px">👤 EXECUTIVOS-CHAVE</p>${d.executivos.map(e=>`<div class="exec-row"><div class="exec-avatar">${initials(e.nome)}</div><div style="flex:1"><p style="color:#F5ECD7;font-size:15px;font-weight:700;margin:0">${e.nome}</p><p style="color:#A89878;font-size:13px;margin:4px 0 0">${e.cargo}</p></div><span class="fonte-badge">${e.fonte}</span></div>`).join('')}</div>
+    <div class="card card-left-gold">
+      <p style="color:#C8A96E;font-size:12px;letter-spacing:2px;font-weight:700;margin:0 0 14px">🏦 EXPOSIÇÃO NO MERCADO (SCR + CVM + BUREAUS)</p>
+      <div style="background:rgba(200,169,110,0.08);border:1px solid rgba(200,169,110,0.25);border-radius:10px;padding:14px 18px;margin-bottom:14px"><p style="color:#C8A96E;font-size:11px;letter-spacing:1px;font-weight:700;margin:0 0 4px">💡 ESPAÇO ESTIMADO PARA NOVO CRÉDITO BBA</p><p style="color:#E8C87A;font-size:20px;font-weight:700;margin:0">${d.exposicaoMercado.espacoEstimado}</p></div>
+      <div class="grid-2" style="margin-bottom:14px">${[{l:"TOTAL SCR",v:d.exposicaoMercado.totalSCR},{l:"SCORE BUREAU",v:d.exposicaoMercado.scoreBureau}].map(x=>`<div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:14px;border:1px solid rgba(200,169,110,0.25)"><p style="color:#7A6A4A;font-size:10px;letter-spacing:1px;margin:0 0 4px">${x.l}</p><p style="color:#F5ECD7;font-size:14px;font-weight:700;margin:0">${x.v}</p></div>`).join('')}</div>
+      <p style="color:#C8A96E;font-size:11px;font-weight:700;letter-spacing:1px;margin:0 0 10px">INSTITUIÇÕES IDENTIFICADAS</p>
+      ${d.exposicaoMercado.instituicoes.map(inst=>`<div class="inst-row"><span style="color:#F5ECD7;font-size:13px;font-weight:700">${inst.banco}</span><span style="color:#A89878;font-size:13px">${inst.tipo}</span><span style="color:#E8C87A;font-size:14px;font-weight:700">${inst.volume}</span><span class="prazo-badge">${inst.prazo}</span></div>`).join('')}
+      <p style="color:#C8A96E;font-size:11px;font-weight:700;letter-spacing:1px;margin:10px 0 8px">TÍTULOS PÚBLICOS / CVM</p>
+      ${d.exposicaoMercado.titulosPublicos.map(t=>`<div style="display:flex;gap:10px;margin-bottom:6px"><span style="color:#C8A96E">◆</span><span style="color:#A89878;font-size:13px">${t}</span></div>`).join('')}
+      <div style="margin-top:14px"><span style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);color:#4ade80;font-size:12px;padding:5px 14px;border-radius:10px">✓ ${d.exposicaoMercado.restricoes}</span></div>
+    </div>
+    <div class="card" style="border-left:4px solid #818cf8">
+      <p style="color:#818cf8;font-size:12px;letter-spacing:2px;font-weight:700;margin:0 0 10px">📊 COMPARATIVO SETORIAL</p>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap"><span style="color:#A89878;font-size:13px">${d.comparativoSetorial.setor}</span><span style="background:rgba(129,140,248,0.15);border:1px solid #818cf8;color:#818cf8;font-size:11px;padding:3px 12px;border-radius:10px;font-weight:700">${d.comparativoSetorial.posicao}</span></div>
+      ${d.comparativoSetorial.dados.map(x=>`<div class="comp-row"><span style="color:#A89878;font-size:13px">${x.indicador}</span><span style="color:#F5ECD7;font-size:14px;font-weight:700">${x.empresa}</span><div><p style="color:#7A6A4A;font-size:10px;margin:0 0 2px">MÉDIA DO SETOR</p><p style="color:#A89878;font-size:13px;margin:0">${x.media}</p></div><span style="font-size:20px">${x.status==='acima'?'✅':'⚠️'}</span></div>`).join('')}
+      <div class="insight-box"><p style="color:#818cf8;font-size:11px;font-weight:700;letter-spacing:1px;margin:0 0 6px">💡 INSIGHT BBA</p><p style="color:#F5ECD7;font-size:14px;margin:0;line-height:1.7">${d.comparativoSetorial.insight}</p></div>
+    </div>
+    <div class="card card-left-light"><p style="color:#C8A96E;font-size:12px;letter-spacing:2px;font-weight:700;margin:0 0 14px">🧠 PERFIL DO CLIENTE</p><div class="perfil-grid">${[{l:"Tomador de Decisão",v:d.perfil.tomadorDecisao},{l:"Estilo de Comunicação",v:d.perfil.estiloComunicacao},{l:"Relacionamento BBA",v:d.perfil.relacionamentoBBA},{l:"Momento da Empresa",v:d.perfil.momentoEmpresa}].map(x=>`<div class="perfil-item"><p style="color:#C8A96E;font-size:10px;letter-spacing:1px;margin:0 0 6px">${x.l.toUpperCase()}</p><p style="color:#F5ECD7;font-size:14px;margin:0;line-height:1.6">${x.v}</p></div>`).join('')}</div></div>
+    <div class="card card-left-gold"><p style="color:#C8A96E;font-size:12px;letter-spacing:2px;font-weight:700;margin:0 0 14px">🛒 HÁBITOS DE CONSUMO FINANCEIRO</p>
+      <div class="hab-row"><span class="hab-label">Produtos ativos:</span><div>${d.habitos.produtosUsados.map(p=>`<span class="tag-produto">${p}</span>`).join('')}</div></div>
+      ${[{l:"Canal preferido",v:d.habitos.canalPreferido},{l:"Frequência",v:d.habitos.frequenciaContato},{l:"Sensibilidade",v:d.habitos.sensibilidade},{l:"Comportamento",v:d.habitos.comportamento}].map(x=>`<div class="hab-row"><span class="hab-label">${x.l}:</span><span style="color:#F5ECD7;font-size:14px;line-height:1.6">${x.v}</span></div>`).join('')}
+    </div>
+    <div class="grid-2">
+      <div class="card card-left-light"><p style="color:#C8A96E;font-size:12px;letter-spacing:2px;font-weight:700;margin:0 0 14px">💡 OPORTUNIDADES IA</p>${d.oportunidades.map(o=>`<div class="op-row"><span style="color:#E8C87A;font-size:16px;flex-shrink:0">◆</span><span style="color:#F5ECD7;font-size:14px;line-height:1.6">${o}</span></div>`).join('')}</div>
+      <div class="card card-left-gold"><p style="color:#C8A96E;font-size:12px;letter-spacing:2px;font-weight:700;margin:0 0 14px">📌 PAUTA SUGERIDA</p>${d.pauta.map((p,i)=>`<div class="pauta-row"><span style="color:#E8C87A;font-size:14px;font-weight:700;min-width:22px;flex-shrink:0">${i+1}.</span><span style="color:#F5ECD7;font-size:14px;line-height:1.6">${p}</span></div>`).join('')}</div>
+    </div>
+    <div class="rodape-dossie"><p style="color:#7A6A4A;font-size:12px;margin:0;letter-spacing:1px">✓ Dossiê gerado em 1.8s — Fontes: CVM · Banco Central · IBGE Agro · LinkedIn · Banco de Dados BBA</p></div>
+  </div></div>`;
+}
+
+function renderImportacao(el){
+  el.innerHTML=`
+  <span style="color:#C8A96E;font-size:11px;letter-spacing:3px">IMPORTAÇÃO DE BASE</span>
+  <h2 class="section-title" style="margin-bottom:8px">Processar Lista de CNPJs</h2>
+  <p style="color:#A89878;font-size:14px;margin:0 0 24px;line-height:1.7">Cole sua lista de CNPJs ou faça upload do CSV. O IQ Client gera o briefing de cada empresa automaticamente.</p>
+  <div class="card" style="margin-bottom:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+      <p style="color:#C8A96E;font-size:11px;letter-spacing:2px;font-weight:700;margin:0">📋 COLE OS CNPJs OU FAÇA UPLOAD</p>
+      <label class="file-upload-label">⬆ Upload CSV<input type="file" accept=".csv,.txt" style="display:none" onchange="handleFileUpload(event)"/></label>
+    </div>
+    <textarea class="cnpj-area" id="cnpj-area" rows="6" placeholder="Cole aqui os CNPJs (um por linha):&#10;&#10;12.345.678/0001-99&#10;98.765.432/0001-11"></textarea>
+    <div style="display:flex;gap:12px;margin-top:14px">
+      <button class="btn-gold" onclick="validarLista()">VALIDAR LISTA</button>
+      <button class="btn-outline" id="btn-processar" style="display:none" onclick="processarLista()">🚀 GERAR BRIEFINGS</button>
+    </div>
+  </div>
+  <div id="import-lista"></div>
+  <div id="import-progress" style="display:none" class="card" style="margin-bottom:20px">
+    <p style="color:#C8A96E;font-size:11px;letter-spacing:2px;font-weight:700;margin:0 0 12px">⟳ GERANDO BRIEFINGS...</p>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <p id="progress-text" style="color:#A89878;font-size:13px;margin:0">0 de 0 processados</p>
+  </div>
+  <div id="import-resultados"></div>`;
+}
+
+let importLista=[];
+let importResultados=[];
+
+function handleFileUpload(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{const lines=ev.target.result.split('\n').map(l=>l.split(/[,;]/)[0].trim()).filter(Boolean);document.getElementById('cnpj-area').value=lines.join('\n')};
+  r.readAsText(f);
+}
+
+function validarLista(){
+  const txt=document.getElementById('cnpj-area').value;
+  importLista=txt.split(/[\n,;]/).map(c=>c.trim()).filter(Boolean).map(parseCNPJ);
+  importResultados=[];
+  document.getElementById('import-resultados').innerHTML='';
+  const btn=document.getElementById('btn-processar');
+  btn.style.display='block';
+  btn.textContent=`🚀 GERAR ${importLista.length} BRIEFINGS`;
+  document.getElementById('import-lista').innerHTML=`
+  <div class="card" style="margin-bottom:20px">
+    <p style="color:#C8A96E;font-size:11px;letter-spacing:2px;font-weight:700;margin:0 0 12px">✓ ${importLista.length} CNPJs VALIDADOS</p>
+    ${importLista.map((c,i)=>`<div style="display:flex;gap:14px;align-items:center;background:rgba(0,0,0,0.3);border-radius:8px;padding:10px 16px;border:1px solid rgba(200,169,110,0.25);margin-bottom:8px"><span style="color:#7A6A4A;font-size:12px;min-width:28px">${i+1}.</span><span style="color:#F5ECD7;font-size:13px;font-family:monospace">${c}</span><span style="margin-left:auto;color:${demoData[c]?'#4ade80':'#A89878'};font-size:11px">${demoData[c]?'✓ Na base demo':'⊙ Processará via API'}</span></div>`).join('')}
+  </div>`;
+}
+
+async function processarLista(){
+  document.getElementById('import-lista').innerHTML='';
+  document.getElementById('btn-processar').style.display='none';
+  const prog=document.getElementById('import-progress');
+  prog.style.display='block';
+  importResultados=[];
+  for(let i=0;i<importLista.length;i++){
+    await new Promise(r=>setTimeout(r,1200));
+    importResultados.push({cnpj:importLista[i],data:demoData[importLista[i]]||null});
+    const pct=((i+1)/importLista.length*100);
+    document.getElementById('progress-fill').style.width=pct+'%';
+    document.getElementById('progress-text').textContent=`${i+1} de ${importLista.length} processados`;
+  }
+  prog.style.display='none';
+  renderRanking();
+}
+
+function renderRanking(){
+  const sorted=[...importResultados].sort((a,b)=>(b.data?.scoreOportunidade?.total||0)-(a.data?.scoreOportunidade?.total||0));
+  const el=document.getElementById('import-resultados');
+  el.innerHTML=`<p style="color:#C8A96E;font-size:11px;letter-spacing:2px;font-weight:700;margin:0 0 16px">📊 RANKING POR SCORE</p>`;
+  sorted.forEach((r,i)=>{
+    const rc=r.data?riskColor(r.data.risco):'#A89878';
+    const tc=r.data?r.data.timingAcao.cor:'#A89878';
+    const row=document.createElement('div');
+    row.innerHTML=`
+    <div class="ranking-row" onclick="toggleRanking('rank-${i}',this)">
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <div style="width:36px;height:36px;border-radius:50%;background:${i===0?'linear-gradient(135deg,#C8A96E,#E8C87A)':'rgba(200,169,110,0.1)'};display:flex;align-items:center;justify-content:center;color:${i===0?'#1A1208':'#C8A96E'};font-weight:700;font-size:14px;flex-shrink:0">${i+1}</div>
+        <div style="flex:1"><p style="color:#F5ECD7;font-size:15px;font-weight:700;margin:0">${r.data?r.data.empresa:r.cnpj}</p><p style="color:#A89878;font-size:12px;margin:3px 0 0">${r.data?r.data.setor:'Não encontrado na base demo'}</p></div>
+        ${r.data?`<div style="text-align:center"><p style="color:${scoreColor(r.data.scoreOportunidade.total)};font-size:22px;font-weight:900;margin:0">${r.data.scoreOportunidade.total}</p><p style="color:#7A6A4A;font-size:10px;margin:0">SCORE</p></div><span style="background:${rc}22;border:1px solid ${rc};color:${rc};padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700">${r.data.risco}</span><span style="background:${tc}22;border:1px solid ${tc};color:${tc};padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700">⏰ ${r.data.timingAcao.nivel}</span><span style="color:#C8A96E;font-size:13px">▼</span>`:''}
+      </div>
+    </div>
+    <div id="rank-${i}" style="display:none" class="ranking-expanded">
+      ${r.data?`
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:14px">
+        ${[{l:"Faturamento",v:r.data.faturamento},{l:"Patrimônio",v:r.data.patrimonio},{l:"Espaço de Crédito",v:r.data.exposicaoMercado.espacoEstimado},{l:"Status BBA",v:r.data.status}].map(x=>`<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:10px 14px;border:1px solid rgba(200,169,110,0.25)"><p style="color:#C8A96E;font-size:10px;letter-spacing:1px;margin:0 0 4px">${x.l.toUpperCase()}</p><p style="color:#F5ECD7;font-size:13px;font-weight:700;margin:0">${x.v}</p></div>`).join('')}
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:12px 16px;margin-bottom:10px;border:1px solid rgba(200,169,110,0.25)"><p style="color:#C8A96E;font-size:10px;letter-spacing:1px;font-weight:700;margin:0 0 6px">🎯 ALERTA</p><p style="color:#F5ECD7;font-size:13px;margin:0;line-height:1.6">${r.data.timingAcao.mensagem}</p></div>
+      <div style="background:linear-gradient(135deg,#C8A96E,#E8C87A);border-radius:8px;padding:10px 16px"><p style="color:#1A1208;font-size:13px;font-weight:700;margin:0">👉 ${r.data.timingAcao.acaoSugerida}</p></div>`:'<p style="color:#A89878;font-size:13px">Empresa não encontrada na base demo.</p>'}
+    </div>`;
+    el.appendChild(row);
+  });
+}
+
+function toggleRanking(id,row){
+  const el=document.getElementById(id);
+  const isOpen=el.style.display==='block';
+  el.style.display=isOpen?'none':'block';
+  const arrow=row.querySelector('span:last-child');
+  if(arrow)arrow.textContent=isOpen?'▼':'▲';
+}
+
+function renderTeam(el){
+  const members=[{name:"Caroline Garcia Souza",role:"Líder do Projeto"},{name:"Lívia Campos Peralis",role:"Negócios & IA"},{name:"Roberto Buchweitz Avila",role:"Negócios & IA"},{name:"Lennyn Semeghini",role:"Negócios & IA"}];
+  el.innerHTML=`
+  <span style="color:#C8A96E;font-size:11px;letter-spacing:3px">O TIME</span>
+  <h2 class="section-title" style="margin-bottom:8px">Nossa Equipe</h2>
+  <p style="color:#A89878;font-size:14px;margin:0 0 32px">Negócios & IA — CB Itaú BBA</p>
+  <div class="grid-auto" style="margin-bottom:24px">
+    ${members.map(m=>`<div class="team-card"><div class="team-avatar">${initials(m.name)}</div><h3 style="color:#F5ECD7;font-size:15px;margin:0 0 6px">${m.name}</h3><p style="color:#C8A96E;font-size:11px;margin:0;letter-spacing:1px">${m.role}</p></div>`).join('')}
+  </div>
+  <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(200,169,110,0.25);border-radius:14px;padding:24px;display:flex;align-items:center;gap:20px">
+    <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2E2210,#4A3820);border:2px solid #C8A96E;display:flex;align-items:center;justify-content:center;color:#C8A96E;font-weight:700;font-size:18px;flex-shrink:0">RZ</div>
+    <div><span style="background:rgba(200,169,110,0.1);border:1px solid rgba(200,169,110,0.25);color:#C8A96E;font-size:10px;padding:2px 10px;border-radius:10px;font-weight:700;letter-spacing:1px;display:inline-block;margin-bottom:6px">⭐ MENTOR</span><h3 style="color:#F5ECD7;font-size:15px;margin:0 0 4px">Rodrigo Augusto Pereira Zago</h3><p style="color:#A89878;font-size:12px;margin:0">Gerente Regional — Itaú BBA</p></div>
+  </div>`;
+}
+
+function renderImpact(el){
+  el.innerHTML=`
+  <span style="color:#C8A96E;font-size:11px;letter-spacing:3px">IMPACTO ESPERADO</span>
+  <h2 class="section-title">Por que o IQ Client vence o Challenge?</h2>
+  <div class="grid-auto" style="margin-bottom:24px">
+    ${[{metric:"70%",label:"Redução no tempo de prep pré-visita"},{metric:"3x",label:"Mais visitas de prospecção por mês/banker"},{metric:"100%",label:"Segmentos do Banco atendidos"},{metric:"R$0",label:"Custo adicional de licença — usa M365 existente"}].map(x=>`<div class="metric-card"><p class="metric-val">${x.metric}</p><p style="color:#A89878;font-size:12px;line-height:1.5;margin:0">${x.label}</p></div>`).join('')}
+  </div>
+  <div style="background:rgba(129,140,248,0.06);border:1px solid rgba(129,140,248,0.35);border-radius:14px;padding:28px;margin-bottom:20px">
+    <p style="color:#818cf8;font-size:12px;letter-spacing:2px;font-weight:700;margin:0 0 20px">🎯 ASSERTIVIDADE DOS DADOS — FONTES E CONFIABILIDADE</p>
+    <div class="grid-2" style="margin-bottom:20px">
+      ${[{fonte:"SCR — Banco Central",dado:"Exposição no sistema financeiro",nivel:98,cor:"#4ade80"},{fonte:"CVM",dado:"Títulos públicos, CRA, CRI, Debêntures",nivel:99,cor:"#4ade80"},{fonte:"Receita Federal / SPED",dado:"Faturamento e dados financeiros",nivel:92,cor:"#4ade80"},{fonte:"Serasa / Boa Vista",dado:"Score de crédito e restrições",nivel:97,cor:"#4ade80"},{fonte:"LinkedIn / Crunchbase",dado:"Executivos-chave (CEO, CFO, CTO)",nivel:85,cor:"#fbbf24"},{fonte:"Imprensa Especializada",dado:"Radar do setor e notícias recentes",nivel:88,cor:"#fbbf24"},{fonte:"IBGE / EMBRAPA",dado:"Dados do agronegócio e safras",nivel:95,cor:"#4ade80"},{fonte:"Base Interna BBA",dado:"Histórico e relacionamento do cliente",nivel:100,cor:"#4ade80"}].map(x=>`
+      <div style="background:rgba(0,0,0,0.3);border-radius:10px;padding:14px 16px;border:1px solid rgba(200,169,110,0.25)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><p style="color:#F5ECD7;font-size:13px;font-weight:700;margin:0">${x.fonte}</p><span style="color:${x.cor};font-size:13px;font-weight:900">${x.nivel}%</span></div>
+        <p style="color:#A89878;font-size:11px;margin:0 0 8px">${x.dado}</p>
+        <div style="background:rgba(255,255,255,0.05);border-radius:4px;height:5px"><div style="width:${x.nivel}%;height:5px;background:${x.cor};border-radius:4px"></div></div>
+      </div>`).join('')}
+    </div>
+    <div style="background:rgba(129,140,248,0.08);border:1px solid rgba(129,140,248,0.3);border-radius:10px;padding:14px 18px">
+      <p style="color:#818cf8;font-size:12px;font-weight:700;margin:0 0 6px">💡 ÍNDICE GERAL DE ASSERTIVIDADE DO DOSSIÊ</p>
+      <div style="display:flex;align-items:center;gap:16px"><div style="flex:1;background:rgba(255,255,255,0.05);border-radius:6px;height:12px"><div style="width:94%;height:12px;background:linear-gradient(90deg,#818cf8,#a5b4fc);border-radius:6px"></div></div><span style="color:#a5b4fc;font-size:22px;font-weight:900;flex-shrink:0">94%</span></div>
+    </div>
+  </div>
+  <div style="display:grid;gap:14px">
+    ${[{i:"🏆",t:"Aplicável a todos os segmentos",d:"Atacado, Middle, Corporate, Agro — qualquer banker do BBA pode usar o IQ Client."},{i:"⚡",t:"Roda no M365 Copilot — custo zero",d:"Construído no Copilot Studio e entregue no Teams. Usa a infraestrutura Microsoft que o Itaú já possui."},{i:"📈",t:"ROI mensurável",d:"Mais tempo disponível = mais visitas = mais negócios fechados."},{i:"🤝",t:"Gerado por quem usa",d:"O projeto nasce do olhar de quem está na ponta comercial — com vivência real de portfólio e visitas."}].map(x=>`<div class="impact-card"><span style="font-size:22px;flex-shrink:0">${x.i}</span><div><h3 style="color:#F5ECD7;font-size:15px;margin:0 0 6px">${x.t}</h3><p style="color:#A89878;font-size:13px;line-height:1.6;margin:0">${x.d}</p></div></div>`).join('')}
+  </div>`;
+}
+
+// Init
+renderSection('apresentacao');
+</script>
+</body>
+</html>
